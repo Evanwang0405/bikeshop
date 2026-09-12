@@ -17,7 +17,6 @@ export function BikeVisualizer({ frame, wheelset, groupset, tires, handlebar, sa
 
   return (
     <div className="visualizer" aria-label="分层自行车预览">
-      {frame?.photoUrl ? <div className="bike-photo" style={{ backgroundImage: `url(${frame.photoUrl})` }} aria-label={`${frame.brand} ${frame.model} 参考照片`} /> : null}
       <div className="visualizer-label">实时预览 <span>01 / 01</span></div>
       <svg viewBox="0 0 760 430" role="img" aria-label="Configured road bicycle">
         <defs>

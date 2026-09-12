@@ -41,11 +41,9 @@ export type Component = {
   sizeOptions?: string[];
   weightBySize?: Record<string, number>;
   image: string;
-  photoUrl?: string;
   description: string;
   specifications: Record<string, string>;
   compatibility: CompatibilityAttributes;
-  officialUrl?: string;
 };
 
 export type BikeBuild = {
@@ -62,7 +60,6 @@ export type CompleteBike = {
   category: "climbing" | "all-round" | "sprint" | "aero" | "budget";
   description: string;
   groupset: string;
-  photoUrl?: string;
   officialUrl?: string;
 };
 

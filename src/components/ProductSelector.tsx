@@ -16,7 +16,7 @@ export function ProductSelector({ category, products, selectedId, selectedSize, 
         {products.map((product) => {
           const isSelected = product.id === selectedId;
           return <button className={`product-row ${isSelected ? "is-selected" : ""}`} key={product.id} onClick={() => onSelect(product.id)} aria-pressed={isSelected}>
-            <span className={`product-swatch ${product.image}`} style={product.photoUrl ? { backgroundImage: `url(${product.photoUrl})` } : undefined} aria-label={`${product.brand} ${product.model} photo`} />
+            <span className={`product-swatch ${product.image}`} aria-label={`${product.brand} ${product.model} 缩略图`} />
             <span className="product-main"><strong>{product.brand}</strong><span>{product.model}</span></span>
             <span className="product-spec">{product.specifications[category === "frame" ? "Material" : category === "wheelset" ? "Rim" : "Speeds"]}</span>
             <span className="product-weight">{product.weight.toLocaleString()}g</span>

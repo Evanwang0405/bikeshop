@@ -32,26 +32,41 @@ const completeBikeSeed: CompleteBike[] = [
   { id: "cannondale-synapse-3", brand: "Cannondale", model: "Synapse Carbon 3", price: 2499, weight: 9300, category: "all-round", groupset: "Shimano 105 12-speed", description: "从日常骑行到周末长途都能胜任的碳纤维耐力车。" },
   { id: "trek-emonda-sl-6", brand: "Trek", model: "Émonda SL 6", price: 3299, weight: 8100, category: "climbing", groupset: "Shimano 105 Di2", description: "轻快灵活，专为一条又一条的爬坡路而生。" },
   { id: "specialized-tarmac-sl8", brand: "Specialized", model: "Tarmac SL8 Expert", price: 6500, weight: 7600, category: "climbing", groupset: "Shimano Ultegra Di2", description: "适合环赛级别骑行的全能竞赛车，爬坡响应出色。" },
-  { id: "cervelo-r5", brand: "Cervelo", model: "R5 Ultegra Di2", price: 7200, weight: 7350, category: "climbing", groupset: "Shimano Ultegra Di2", description: "纯粹的爬坡车：低重量、灵敏操控，适合高山长途。" },
+  { id: "cervelo-r5", brand: "Cervélo", model: "R5 Ultegra Di2", price: 7200, weight: 7350, category: "climbing", groupset: "Shimano Ultegra Di2", description: "纯粹的爬坡车：低重量、灵敏操控，适合高山长途。" },
   { id: "canyon-ultimate-cf-slx", brand: "Canyon", model: "Ultimate CF SLX 8", price: 5499, weight: 7600, category: "all-round", groupset: "SRAM Force AXS", description: "兼顾各种地形的均衡竞赛平台，速度与操控都很出色。" },
   { id: "colnago-v4rs", brand: "Colnago", model: "V4Rs", price: 12500, weight: 7000, category: "all-round", groupset: "Shimano Dura-Ace Di2", description: "受环赛竞赛启发的高性能碳纤维赛车。" },
-  { id: "cervelo-s5", brand: "Cervelo", model: "S5", price: 9000, weight: 7900, category: "aero", groupset: "Shimano Ultegra Di2", description: "气动竞赛几何，适合在平路和侧风路段保持高速。" },
+  { id: "cervelo-s5", brand: "Cervélo", model: "S5", price: 9000, weight: 7900, category: "aero", groupset: "Shimano Ultegra Di2", description: "气动竞赛几何，适合在平路和侧风路段保持高速。" },
   { id: "colnago-y1rs", brand: "Colnago", model: "Y1Rs", price: 13500, weight: 7200, category: "aero", groupset: "Shimano Dura-Ace Di2", description: "面向环赛集团前方的气动竞赛车，专注高速效率。" },
   { id: "specialized-venge-demo", brand: "Specialized", model: "Venge Team Archive", price: 4800, weight: 7900, category: "sprint", groupset: "SRAM Force AXS", description: "快速、刚性出色的气动平台，为平路冲刺提供最大功率。" },
   { id: "canyon-aeroad-cfr", brand: "Canyon", model: "Aeroad CFR", price: 9499, weight: 7500, category: "sprint", groupset: "SRAM Red AXS", description: "职业级气动效率，兼顾突围和最后一公里的操控。" },
   { id: "scott-foil-rc", brand: "Scott", model: "Foil RC Pro", price: 8999, weight: 7800, category: "sprint", groupset: "SRAM Red AXS", description: "一体化气动设计，适合突围、集团冲刺和高速下坡。" },
 ];
 
-const completeBikePhotoIds = [
-  "1485965120184-e220f721d03e", "1502744688674-c619d1586c9e", "1558981806-ec527fa84c39", "1532298229144-0ec0c57515c7",
-  "1571068316344-75bc76f77890", "1511994298241-608e28f14fde", "1529429617124-95b109e86bb8", "1505705694340-52b3f7f7b1a6",
-  "1558980664-10ea9e7f3f16", "1593764592116-bfb3a4f2b6c2", "1541625602330-2277a4c46182", "1575584812173-07cd6b4c58c1",
-  "1532298229144-0ec0c57515c7", "1485965120184-e220f721d03e", "1502744688674-c619d1586c9e",
+const brandCompleteBikeSeed: CompleteBike[] = [
+  { id: "specialized-aethos", brand: "Specialized", model: "Aethos", price: 3499, weight: 7200, category: "climbing", groupset: "Shimano 105", description: "轻量、灵活、强调骑行质感的爬坡型公路车。" },
+  { id: "trek-madone-slr", brand: "Trek", model: "Madone SLR", price: 7999, weight: 7600, category: "aero", groupset: "Shimano Dura-Ace Di2", description: "兼顾气动与爬坡效率的竞赛公路车。" },
+  { id: "giant-tcr-advanced", brand: "Giant", model: "TCR Advanced Pro", price: 4299, weight: 7700, category: "climbing", groupset: "Shimano Ultegra Di2", description: "经典全能竞赛平台，适合爬坡和长距离比赛。" },
+  { id: "canyon-endurace-cf", brand: "Canyon", model: "Endurace CF 7", price: 2999, weight: 8400, category: "all-round", groupset: "Shimano 105", description: "舒适耐力几何，适合长途和日常高效骑行。" },
+  { id: "cannondale-supersix-evo", brand: "Cannondale", model: "SuperSix EVO 4", price: 3699, weight: 8100, category: "all-round", groupset: "Shimano 105", description: "轻快的竞赛公路车，兼顾速度与操控。" },
+  { id: "cervelo-soloist", brand: "Cervélo", model: "Soloist", price: 4999, weight: 8200, category: "all-round", groupset: "SRAM Rival AXS", description: "介于气动车和爬坡车之间的均衡竞赛车型。" },
+  { id: "pinarello-dogma-f", brand: "Pinarello", model: "Dogma F", price: 14500, weight: 6900, category: "all-round", groupset: "Shimano Dura-Ace Di2", description: "源自环赛竞赛的高端全能公路车。" },
+  { id: "colnago-c68", brand: "Colnago", model: "C68 Road", price: 13500, weight: 7350, category: "all-round", groupset: "Shimano Dura-Ace Di2", description: "手工制造取向的意式高端公路车。" },
+  { id: "bianchi-specialissima", brand: "Bianchi", model: "Specialissima", price: 6999, weight: 7300, category: "climbing", groupset: "Shimano Ultegra Di2", description: "为爬坡和山地竞赛打造的轻量公路车。" },
+  { id: "bmc-teammachine", brand: "BMC", model: "Teammachine SLR 01", price: 8999, weight: 7200, category: "all-round", groupset: "Shimano Dura-Ace Di2", description: "高刚性、高效率的职业竞赛平台。" },
+  { id: "scott-addict-rc", brand: "Scott", model: "Addict RC", price: 6999, weight: 7300, category: "climbing", groupset: "SRAM Force AXS", description: "轻量爬坡性能与现代气动设计的结合。" },
+  { id: "orbea-orca", brand: "Orbea", model: "Orca M30", price: 3299, weight: 8200, category: "climbing", groupset: "Shimano 105", description: "轻量碳纤维爬坡车，适合山路和周末长途。" },
+  { id: "merida-reacto", brand: "Merida", model: "Reacto 6000", price: 4799, weight: 7900, category: "aero", groupset: "Shimano Ultegra Di2", description: "高效率气动车，适合平路高速和集团骑行。" },
+  { id: "factor-ostro-vam", brand: "Factor", model: "Ostro VAM", price: 8999, weight: 7000, category: "aero", groupset: "Shimano Dura-Ace Di2", description: "轻量与气动兼顾的高端竞赛自行车。" },
+  { id: "santa-cruz-stigmata", brand: "Santa Cruz", model: "Stigmata", price: 3999, weight: 8700, category: "all-round", groupset: "SRAM Rival XPLR", description: "可应对公路、碎石和长途冒险的全地形车型。" },
+  { id: "yeti-asr", brand: "Yeti", model: "ASR", price: 6599, weight: 10500, category: "climbing", groupset: "SRAM XO Transmission", description: "轻量越野竞赛车，适合山地爬坡和技术路段。" },
+  { id: "xds-adore", brand: "XDS", model: "ADORE Carbon Road", price: 2199, weight: 8500, category: "all-round", groupset: "Shimano 105", description: "碳纤维全能公路车，强调配置与价格平衡。" },
+  { id: "pardus-robin", brand: "Pardus", model: "Robin", price: 1899, weight: 8900, category: "all-round", groupset: "Shimano 105", description: "面向日常训练和长距离骑行的实用公路车。" },
+  { id: "winspace-slc50", brand: "Winspace", model: "SLC5.0", price: 5999, weight: 7300, category: "aero", groupset: "Shimano Ultegra Di2", description: "碳纤维气动公路车，适合高速巡航和竞赛。" },
+  { id: "seka-exceed", brand: "SEKA", model: "Exceed", price: 5499, weight: 7200, category: "all-round", groupset: "Shimano Ultegra Di2", description: "轻量全能竞赛车，适合爬坡、平路和长距离。" },
 ];
 
-export const completeBikes: CompleteBike[] = completeBikeSeed.map((bike, index) => ({
+export const completeBikes: CompleteBike[] = [...completeBikeSeed, ...brandCompleteBikeSeed].map((bike) => ({
   ...bike,
-  photoUrl: `https://images.unsplash.com/photo-${completeBikePhotoIds[index]}?auto=format&fit=crop&w=900&q=80`,
   officialUrl: officialBrandUrls[bike.brand],
 }));
 
@@ -326,14 +341,13 @@ const makeFrame = ([brand, model]: readonly [string, string], index: number): Co
   id: `${brand.toLowerCase().replaceAll(" ", "-")}-${model.toLowerCase().replaceAll(" ", "-")}`,
   brand, model, category: "frame", price: 899 + index * 115, weight: 1120 + (index % 6) * 55,
   image: ["frame-red", "frame-blue", "frame-sand"][index % 3], description: "A modern road frame ready for a fast, comfortable build.",
-  photoUrl: `https://images.unsplash.com/photo-${index % 2 ? "1571068316344-75bc76f77890" : "1558981806-ec527fa84c39"}?auto=format&fit=crop&w=900&q=80`,
   specifications: { Material: index % 3 === 0 ? "Carbon" : "Aluminum", "Wheel size": "700c", Clearance: `${30 + index % 3 * 3}mm`, Axles: "12x142 / 12x100" },
   compatibility: { wheelSize: "700c", axleStandard: "12x142", tireClearance: 30 + index % 3 * 3, brakeType: "disc", bottomBracket: index % 2 ? "T47" : "BB86", seatpostDiameter: 27.2 },
 });
 
 const makeBudgetFrame = ([brand, model]: readonly [string, string], index: number): Component => ({
   id: `${brand.toLowerCase()}-${model.toLowerCase().replaceAll(" ", "-")}`, brand, model, category: "frame", price: 399 + index * 75, weight: 1540 + index * 70,
-  image: ["frame-blue", "frame-sand", "frame-red"][index % 3], photoUrl: `https://images.unsplash.com/photo-${index % 2 ? "1502744688674-c619d1586c9e" : "1571068316344-75bc76f77890"}?auto=format&fit=crop&w=900&q=80`,
+  image: ["frame-blue", "frame-sand", "frame-red"][index % 3],
   description: "An affordable road-ready frame for building more and spending less.", specifications: { Material: index % 2 ? "Aluminum" : "Steel", "Wheel size": "700c", Clearance: "32mm", Axles: "12x142 / 12x100" },
   compatibility: { wheelSize: "700c", axleStandard: "12x142", tireClearance: 32, brakeType: "disc", bottomBracket: "BSA", seatpostDiameter: 27.2 },
 });
@@ -342,14 +356,13 @@ const makeWheel = ([brand, model]: readonly [string, string], index: number): Co
   id: `${brand.toLowerCase().replaceAll(" ", "-")}-${model.toLowerCase().replaceAll(" ", "-")}`,
   brand, model, category: "wheelset", price: 499 + index * 85, weight: 1340 + (index % 7) * 62,
   image: ["wheels-deep", "wheels-carbon", "wheels-shallow"][index % 3], description: "A road wheelset balancing speed, durability, and everyday confidence.",
-  photoUrl: `https://images.unsplash.com/photo-${index % 2 ? "1502744688674-c619d1586c9e" : "1558981806-ec527fa84c39"}?auto=format&fit=crop&w=900&q=80`,
   specifications: { Rim: index % 2 ? "Carbon, 45mm" : "Alloy, 32mm", Hub: "Sealed bearing", Axles: "12x142 / 12x100", Freehub: index % 4 === 1 ? "XDR" : "HG" },
   compatibility: { wheelSize: "700c", axleStandard: "12x142", freehub: index % 4 === 1 ? "XDR" : "HG" },
 });
 
 const makeBudgetWheel = ([brand, model]: readonly [string, string], index: number): Component => ({
   id: `${brand.toLowerCase()}-${model.toLowerCase().replaceAll(" ", "-")}`, brand, model, category: "wheelset", price: 249 + index * 45, weight: 1880 + index * 65,
-  image: "wheels-shallow", photoUrl: `https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=900&q=80`,
+  image: "wheels-shallow",
   description: "A dependable alloy wheelset for an accessible first build.", specifications: { Rim: "Alloy, 30mm", Hub: "Sealed bearing", Axles: "12x142 / 12x100", Freehub: "HG" },
   compatibility: { wheelSize: "700c", axleStandard: "12x142", freehub: "HG" },
 });
