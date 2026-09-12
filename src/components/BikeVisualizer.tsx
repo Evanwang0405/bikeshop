@@ -2,12 +2,12 @@
 
 import type { Component } from "@/types";
 
-type BikeVisualizerProps = { frame?: Component; wheelset?: Component; groupset?: Component; tires?: Component; handlebar?: Component; saddle?: Component };
+type BikeVisualizerProps = { frame?: Component; wheelset?: Component; groupset?: Component; tires?: Component; handlebar?: Component; saddle?: Component; factoryImage?: string };
 
 const frameColors: Record<string, string> = { "frame-red": "#d94b3d", "frame-blue": "#2f6070", "frame-sand": "#b89973" };
 const wheelColors: Record<string, string> = { "wheels-carbon": "#1a252a", "wheels-deep": "#43545a", "wheels-shallow": "#78878a" };
 
-export function BikeVisualizer({ frame, wheelset, groupset, tires, handlebar, saddle }: BikeVisualizerProps) {
+export function BikeVisualizer({ frame, wheelset, groupset, tires, handlebar, saddle, factoryImage }: BikeVisualizerProps) {
   const frameColor = frame ? frameColors[frame.image] : "#b6bbb4";
   const wheelColor = wheelset ? wheelColors[wheelset.image] : "#6f7772";
   const electronic = groupset?.brand === "SRAM";
@@ -17,6 +17,7 @@ export function BikeVisualizer({ frame, wheelset, groupset, tires, handlebar, sa
 
   return (
     <div className="visualizer" aria-label="分层自行车预览">
+      {factoryImage ? <div className="factory-image" style={{ backgroundImage: `url(${factoryImage})` }} aria-label="原厂整车官方参考图" /> : null}
       <div className="visualizer-label">实时预览 <span>01 / 01</span></div>
       <svg viewBox="0 0 760 430" role="img" aria-label="Configured road bicycle">
         <defs>

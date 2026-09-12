@@ -17,6 +17,36 @@ export const componentCategories = [
 
 export type ComponentCategory = (typeof componentCategories)[number];
 
+export type BuildMode = "complete-bike" | "custom-build";
+
+export type Money = {
+  amount: number;
+  currency: "USD" | "CNY";
+  region?: string;
+};
+
+export type ProductImage = {
+  url: string;
+  sourceUrl: string;
+  sourceType: "official" | "fallback";
+  alt: string;
+};
+
+export type ProductSource = {
+  manufacturer: string;
+  productUrl: string;
+  region?: string;
+  sourceCurrency?: string;
+  retrievedAt: string;
+};
+
+export type ComponentReference = {
+  productId: string;
+  label?: string;
+};
+
+export type FactoryBuild = Partial<Record<ComponentCategory, ComponentReference>>;
+
 export type CompatibilityAttributes = {
   wheelSize?: string;
   axleStandard?: string;
@@ -44,11 +74,17 @@ export type Component = {
   description: string;
   specifications: Record<string, string>;
   compatibility: CompatibilityAttributes;
+  dataQuality?: "official" | "verified" | "demo";
+  source?: ProductSource;
+  productImage?: ProductImage;
 };
 
 export type BikeBuild = {
+  mode: BuildMode;
+  baseBikeId?: string;
   selections: Partial<Record<ComponentCategory, string>>;
   sizes: Partial<Record<ComponentCategory, string>>;
+  factorySelections: Partial<Record<ComponentCategory, string>>;
 };
 
 export type CompleteBike = {
@@ -66,6 +102,15 @@ export type CompleteBike = {
   ridingStyle?: string[];
   tags?: string[];
   officialUrl?: string;
+  year?: number;
+  brandId?: string;
+  family?: string;
+  trim?: string;
+  msrp?: Money;
+  productImage?: ProductImage;
+  source?: ProductSource;
+  dataQuality?: "official" | "verified" | "demo";
+  factoryBuild?: FactoryBuild;
 };
 
 export type BrandDirectoryItem = {
