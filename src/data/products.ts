@@ -67,6 +67,11 @@ const brandCompleteBikeSeed: CompleteBike[] = [
 
 export const completeBikes: CompleteBike[] = [...completeBikeSeed, ...brandCompleteBikeSeed].map((bike) => ({
   ...bike,
+  subCategory: bike.category === "aero" || bike.category === "sprint" ? "aero" : bike.category === "climbing" ? "race" : bike.category === "budget" ? "endurance" : "race",
+  frameMaterial: bike.price < 2000 ? "aluminum" : "carbon",
+  wheelset: bike.category === "aero" || bike.category === "sprint" ? "碳纤维深框轮组" : "碳纤维/铝合金公路轮组",
+  ridingStyle: bike.category === "climbing" ? ["climbing", "lightweight", "race"] : bike.category === "aero" || bike.category === "sprint" ? ["aero", "sprint", "race"] : bike.category === "budget" ? ["beginner", "value", "endurance"] : ["all-round", "race", "endurance"],
+  tags: bike.price < 2500 ? ["value"] : bike.price > 8000 ? ["premium"] : [],
   officialUrl: officialBrandUrls[bike.brand],
 }));
 

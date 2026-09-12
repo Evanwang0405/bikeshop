@@ -60,6 +60,11 @@ export type CompleteBike = {
   category: "climbing" | "all-round" | "sprint" | "aero" | "budget";
   description: string;
   groupset: string;
+  subCategory?: "race" | "aero" | "endurance" | "gravel" | "mtb";
+  frameMaterial?: "carbon" | "aluminum" | "steel";
+  wheelset?: string;
+  ridingStyle?: string[];
+  tags?: string[];
   officialUrl?: string;
 };
 
