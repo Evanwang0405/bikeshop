@@ -33,7 +33,7 @@ const completeBikeSeed: CompleteBike[] = [
   { id: "trek-emonda-sl-6", brand: "Trek", model: "Émonda SL 6", price: 3299, weight: 8100, category: "climbing", groupset: "Shimano 105 Di2", description: "轻快灵活，专为一条又一条的爬坡路而生。" },
   { id: "specialized-tarmac-sl8", brand: "Specialized", model: "Tarmac SL8 Expert", price: 6500, weight: 7600, category: "climbing", groupset: "Shimano Ultegra Di2", description: "适合环赛级别骑行的全能竞赛车，爬坡响应出色。" },
   { id: "cervelo-r5", brand: "Cervélo", model: "R5 Ultegra Di2", price: 7200, weight: 7350, category: "climbing", groupset: "Shimano Ultegra Di2", description: "纯粹的爬坡车：低重量、灵敏操控，适合高山长途。" },
-  { id: "canyon-ultimate-cf-slx", brand: "Canyon", model: "Ultimate CF SLX 8 Di2", price: 5599, weight: 7600, category: "all-round", groupset: "Shimano Ultegra Di2", description: "兼顾各种地形的均衡竞赛平台，速度与操控都很出色。", family: "Ultimate", trim: "CF SLX 8 Di2", year: 2026, brandId: "canyon", dataQuality: "official", source: { manufacturer: "Canyon", productUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/cf-slx/ultimate-cf-slx-8-di2/4372.html", region: "US", sourceCurrency: "USD", retrievedAt: "2026-09-12" }, productImage: { url: "https://dma.canyon.com/image/upload/w_991,c_fit/f_auto/q_auto/2025_Launch_Product_x_Web_World_Road_01_3600x1200_ALL_trlnd3", sourceUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/", sourceType: "official", alt: "Canyon Ultimate 公路车官方参考图" }, factoryBuild: { frame: { productId: "canyon-endurace-cf-7" }, wheelset: { productId: "dt-swiss-er-1600" }, tires: { productId: "continental-gp5000-s-tr" }, groupset: { productId: "shimano-ultegra-r8100" }, brakes: { productId: "shimano-105-brakes" } } },
+  { id: "canyon-ultimate-cf-slx", brand: "Canyon", model: "Ultimate CF SLX 8 Di2", price: 5599, weight: 7600, category: "all-round", groupset: "Shimano Ultegra Di2", description: "兼顾各种地形的均衡竞赛平台，速度与操控都很出色。", family: "Ultimate", trim: "CF SLX 8 Di2", year: 2026, brandId: "canyon", dataQuality: "official", source: { manufacturer: "Canyon", productUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/cf-slx/ultimate-cf-slx-8-di2/4372.html", region: "US", sourceCurrency: "USD", retrievedAt: "2026-09-12" }, productImage: { url: "https://dma.canyon.com/image/upload/w_991,c_fit/f_auto/q_auto/2025_Launch_Product_x_Web_World_Road_01_3600x1200_ALL_trlnd3", sourceUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/", sourceType: "official", alt: "Canyon Ultimate 公路车官方参考图" }, factoryBuild: { frame: { productId: "canyon-ultimate-cf-slx-frame" }, wheelset: { productId: "canyon-ultimate-arc-1400" }, tires: { productId: "continental-gp5000-s-tr" }, groupset: { productId: "shimano-ultegra-r8100" } } },
   { id: "colnago-v4rs", brand: "Colnago", model: "V4Rs", price: 12500, weight: 7000, category: "all-round", groupset: "Shimano Dura-Ace Di2", description: "受环赛竞赛启发的高性能碳纤维赛车。" },
   { id: "cervelo-s5", brand: "Cervélo", model: "S5", price: 9000, weight: 7900, category: "aero", groupset: "Shimano Ultegra Di2", description: "气动竞赛几何，适合在平路和侧风路段保持高速。" },
   { id: "colnago-y1rs", brand: "Colnago", model: "Y1Rs", price: 13500, weight: 7200, category: "aero", groupset: "Shimano Dura-Ace Di2", description: "面向环赛集团前方的气动竞赛车，专注高速效率。" },
@@ -74,6 +74,11 @@ export const completeBikes: CompleteBike[] = [...completeBikeSeed, ...brandCompl
   tags: bike.price < 2500 ? ["value"] : bike.price > 8000 ? ["premium"] : [],
   officialUrl: officialBrandUrls[bike.brand],
 }));
+
+const factoryReferenceProducts: Component[] = [
+  { id: "canyon-ultimate-cf-slx-frame", brand: "Canyon", model: "Ultimate CF SLX Frame", category: "frame", price: 0, weight: 950, image: "frame-blue", description: "Canyon Ultimate CF SLX 原厂车架参考项。", specifications: { Material: "Carbon", "Wheel size": "700c" }, compatibility: { wheelSize: "700c", axleStandard: "12x142", tireClearance: 32, brakeType: "disc", seatpostDiameter: 27.2 }, dataQuality: "official", source: { manufacturer: "Canyon", productUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/", region: "US", sourceCurrency: "USD", retrievedAt: "2026-09-12" } },
+  { id: "canyon-ultimate-arc-1400", brand: "DT Swiss", model: "ARC 1400 DICUT 原厂轮组", category: "wheelset", price: 0, weight: 1520, image: "wheels-carbon", description: "Canyon Ultimate CF SLX 8 Di2 原厂轮组参考项。", specifications: { Rim: "Carbon", Freehub: "HG", Axles: "12x142 / 12x100" }, compatibility: { wheelSize: "700c", axleStandard: "12x142", freehub: "HG" }, dataQuality: "official", source: { manufacturer: "Canyon", productUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/cf-slx/ultimate-cf-slx-8-di2/4372.html", region: "US", sourceCurrency: "USD", retrievedAt: "2026-09-12" } },
+];
 
 const baseProducts: Component[] = [
   {
@@ -426,7 +431,7 @@ function addSizeWeights(product: Component): Component {
   return { ...product, sizeOptions: profile.options, weightBySize: Object.fromEntries(profile.options.map((size, index) => [size, Math.round(product.weight * profile.multipliers[index % profile.multipliers.length])])) };
 }
 
-export const products: Component[] = [...baseProducts, ...extraProducts].map(addSizeWeights);
+export const products: Component[] = [...factoryReferenceProducts, ...baseProducts, ...extraProducts].map(addSizeWeights);
 
 export function getProduct(id: string | undefined): Component | undefined {
   return products.find((product) => product.id === id);
