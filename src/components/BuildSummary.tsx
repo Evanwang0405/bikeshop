@@ -13,9 +13,13 @@ type BuildSummaryProps = {
   baseBikePrice: number;
   modificationSpend: number;
   /** Currency the base bike price is quoted in, when one is published. */
-  baseBikeCurrency?: "CNY" | "USD" | "EUR";
+  baseBikeCurrency?: "CNY" | "USD" | "EUR" | "GBP";
   /** False when the manufacturer publishes no price for the loaded bicycle. */
   basePriceKnown?: boolean;
+  /** Says whether the base figure is a China MSRP, a retailer figure, etc. */
+  basePriceCaption?: string;
+  /** Converted foreign reference, shown only when there is no primary price. */
+  basePriceReference?: string | null;
   onSave: () => void;
 };
 
@@ -34,6 +38,8 @@ export function BuildSummary({
   modificationSpend,
   baseBikeCurrency = "CNY",
   basePriceKnown = true,
+  basePriceCaption = "",
+  basePriceReference = null,
   onSave,
 }: BuildSummaryProps) {
   const completed = components.length;
@@ -95,12 +101,16 @@ export function BuildSummary({
           <div>
             <span>原厂整车价格</span>
             <strong>{currencyPrefix}{baseBikePrice.toLocaleString()}</strong>
+            {basePriceCaption ? <small className="summary-price-caption">{basePriceCaption}</small> : null}
           </div>
         ) : null}
         {!basePriceKnown ? (
           <div>
             <span>原厂整车价格</span>
-            <strong>官方未公布</strong>
+            <strong className="price-unknown">官方未公布</strong>
+            {basePriceReference ? (
+              <small className="summary-price-caption">参考价 {basePriceReference}（未计入总价）</small>
+            ) : null}
           </div>
         ) : null}
         <div>

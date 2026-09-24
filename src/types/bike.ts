@@ -79,6 +79,12 @@ export type Component = {
    */
   priceBasis?: "verified" | "included" | "estimated" | "unknown";
   /**
+   * Which kind of figure the price is. A China MSRP and a converted foreign
+   * reference answer different questions, so the caption differs even though both
+   * are `verified` figures.
+   */
+  priceProvenance?: "china-msrp" | "foreign-reference" | "retailer" | "historical" | "unknown";
+  /**
    * Where the weight figure comes from.
    *   official  — published by the manufacturer
    *   estimated — illustrative sample value, NOT a published figure

@@ -50,6 +50,56 @@
 /* A figure that exists but is unconfirmed must not look like a verified one. */
 .weight-reference { color: #8a6636; font-size: 10px; }
 
+/*
+  Price provenance.
+  A China MSRP, a converted foreign MSRP and a retailer figure are three different
+  claims. They are colour-coded and always carry a caption so the number can never
+  be read as something it is not.
+*/
+.catalog-row-price.price-china-msrp,
+.bike-price.price-china-msrp { color: var(--ink); font-weight: 500; }
+.catalog-row-price.price-foreign-reference,
+.bike-price.price-foreign-reference { color: #8a6636; }
+.catalog-row-price.price-retailer,
+.bike-price.price-retailer { color: #40606f; }
+.catalog-row-price.price-historical,
+.bike-price.price-historical { color: #7d7266; font-style: italic; }
+.catalog-row-price.price-unknown,
+.bike-price.price-unknown { color: var(--muted); font-size: 11px; font-weight: 400; }
+.catalog-row-price-caption,
+.bike-price-caption {
+  display: block;
+  color: var(--muted);
+  font: 9px/1.4 Arial, sans-serif;
+  letter-spacing: .3px;
+}
+.catalog-row-price-caption { grid-column: 1 / -1; }
+.price-note {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font: 10px/1.5 Arial, sans-serif;
+}
+.price-note-warn { color: #8a6636; }
+
+/* The parts picker groups price and its provenance caption in one cell. */
+.product-price-cell { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.product-price-caption { color: var(--muted); font: 9px/1.3 Arial, sans-serif; letter-spacing: .2px; }
+.summary-price-caption { display: block; margin-top: 3px; color: var(--muted); font: 9px/1.4 Arial, sans-serif; }
+
+/* A source collision is a data defect, so it is shown, not swallowed. */
+.parts-collision-note {
+  margin: 12px 0 0;
+  padding: 8px 10px;
+  background: #f6efe4;
+  border-left: 2px solid #d9bfa0;
+  color: #7d6236;
+  font: 10px/1.5 Arial, sans-serif;
+}
+
+/* The historical-or-market status is weaker than an official one and looks it. */
+.catalog-badge.status-historical-or-market-reference { border-color: #cfc8bf; color: #7d7266; }
+.catalog-badge.availability-oem { border-color: #cfc8bf; color: #7d7266; }
+
 .total-caveat {
   margin: 8px 0 0;
   padding: 8px 10px;

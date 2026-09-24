@@ -26,55 +26,59 @@ export type BicycleCategory = (typeof bicycleCategories)[number];
 export const productTypes = ["complete-bike", "frameset"] as const;
 export type ProductType = (typeof productTypes)[number];
 
-export const productStatuses = ["current", "previous-generation", "archived", "unknown"] as const;
+export const productStatuses = [
+  "current",
+  "previous-generation",
+  "archived",
+  "unknown",
+  /**
+   * A China figure that exists but is legacy or market-specific. Useful for RS8/RS9
+   * style records whose current MSRP cannot be confirmed. Must never be presented
+   * as a guaranteed current price.
+   */
+  "historical-or-market-reference",
+] as const;
 export type ProductStatus = (typeof productStatuses)[number];
 
 export type DataQuality = "official" | "verified" | "partial";
 
-export type Currency = "CNY" | "USD" | "EUR";
+export type Currency = "CNY" | "USD" | "EUR" | "GBP";
 
-export type CatalogPrice = {
-  amount: number;
-  currency: Currency;
-  region: string;
-};
+/**
+ * EVERYTHING PRICE-RELATED NOW LIVES IN src/types/sourcing.ts.
+ *
+ * The old shape (`{ amount, currency, region }`) could not express the difference
+ * between a China MSRP and a foreign MSRP converted to RMB, and could not say
+ * "we have no reliable figure". It was replaced by `CatalogPriceRecord`, which
+ * carries a `priceType` and may have `rmb: null`.
+ *
+ * Re-exported here so existing imports keep working.
+ */
+export type {
+  PriceType,
+  CatalogPriceRecord,
+  WeightType,
+  CatalogWeightRecord,
+  SourceQuality,
+  Confidence,
+  AvailabilityType,
+  SourcedValue,
+} from "./sourcing";
+export { priceTypes, weightTypes, sourceQualities, availabilityTypes, FX_SNAPSHOTS, convertToRmb, fxReference, chinaMsrp, noPrice } from "./sourcing";
+
+import type { CatalogPriceRecord, CatalogWeightRecord } from "./sourcing";
+
+/**
+ * Legacy alias kept so records written before the migration still compile while
+ * they are being converted. New code should use `CatalogPriceRecord`.
+ */
+export type CatalogPrice = CatalogPriceRecord;
 
 /**
  * A price seen on a manufacturer page but not confirmed against the exact
- * model + model year + region + trim page. Kept separate so it can never be
- * silently promoted to a verified price.
+ * model + model year + region + trim page.
  */
-export type ReferencePrice = {
-  amount: number;
-  currency: Currency;
-  region: string;
-  /** Why this is not treated as verified. */
-  note: string;
-};
-
-export const weightKinds = [
-  "complete-bike",
-  "bare-frame",
-  "unpainted-frame",
-  "frame-with-fork",
-  "frameset",
-] as const;
-
-export type WeightKind = (typeof weightKinds)[number];
-
-/**
- * A weight must always carry the definition it was measured under. A bare-frame
- * laboratory figure is never a complete-bike weight.
- */
-export type WeightRecord = {
-  grams: number;
-  kind: WeightKind;
-  /** Frame size the figure was measured in, when the manufacturer states it. */
-  size?: string | null;
-  /** Whether paint is included, when the manufacturer states it. */
-  paintIncluded?: boolean | null;
-  note?: string | null;
-};
+export type ReferencePrice = CatalogPriceRecord;
 
 /**
  * Data-source priority for China-market bicycles (lower tier wins on conflict).
@@ -201,18 +205,33 @@ export type Bicycle = {
   /** Structured recommendation tags used by the ranking engine. */
   recommendationTags: string[];
 
-  price: CatalogPrice | null;
+  price: CatalogPriceRecord;
   priceNote?: string | null;
-  /** Seed/reference figure that still needs model-page confirmation. */
-  referencePrice?: ReferencePrice | null;
+  /**
+   * A figure that exists but is not the product's confirmed primary price — a
+   * retailer listing, or a China figure that is legacy or market-specific.
+   *
+   * Stored in its own field so it can never be read as `price`. `priceType` on the
+   * record says which kind it is.
+   */
+  referencePrice?: CatalogPriceRecord | null;
 
-  weights: WeightRecord[];
+  /**
+   * Confirmed weights. Each entry states what it measures via `weightType`; a
+   * completion-bike weight is never derived from a bare-frame figure.
+   */
+  weights: CatalogWeightRecord[];
   /**
    * Weights that exist in the brief or an earlier source but could not be confirmed
-   * on the product page. Kept separate from `weights` so the verified-weight count
-   * cannot be inflated by them — the same reason `referencePrice` exists.
+   * on a product page. Kept separate so the verified-weight count cannot be
+   * inflated — the same reason FX reference prices are not China MSRP.
    */
-  referenceWeights?: WeightRecord[] | null;
+  referenceWeights?: CatalogWeightRecord[] | null;
+  /**
+   * Why a weight is absent, when that is a deliberate decision rather than an
+   * oversight — e.g. the owner confirmed a model must not be estimated.
+   */
+  weightNote?: string | null;
   frameMaterial?: string | null;
   groupset?: string | null;
   crankset?: string | null;

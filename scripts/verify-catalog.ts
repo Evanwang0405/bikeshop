@@ -10,12 +10,25 @@
  *   · no product has an invented price or weight
  *   · framesets and complete bikes are never merged
  *   · model-year variants with the same name stay separate records
+ *   · a converted foreign price is never labelled a China MSRP
+ *   · a bare-frame weight is never stored as a complete-bike weight
+ *   · an OEM-only part never carries a retail price it does not publish
  */
 import { catalog, families } from "@/data/catalog";
 import { searchCatalog, resolveBrandFromQuery } from "@/lib/catalog/search";
 import { buildCatalogReport } from "@/lib/catalog/stats";
 import { derivedComponents, derivedComponentStats } from "@/lib/catalog/derivedComponents";
+import { catalogComponents, mergePartSources } from "@/lib/catalog/componentAdapters";
 import { products } from "@/data/products";
+import {
+  componentCatalog,
+  groupsetCatalog,
+  wheelsetCatalog,
+  drivetrainSkus,
+  exactBrakeGroups,
+  wheelsetIngestionTargets,
+} from "@/data/components";
+import { priceTypes, weightTypes, availabilityTypes } from "@/types/sourcing";
 
 const REQUIRED_SEARCHES = [
   "ADV",
@@ -69,10 +82,50 @@ for (const bike of catalog) {
 // 4. No fabricated values: every weight carries a definition, prices keep provenance.
 for (const bike of catalog) {
   for (const weight of bike.weights) {
-    if (!weight.kind) failures.push(`${bike.id}: 重量缺少 kind 定义`);
+    if (!weightTypes.includes(weight.weightType)) {
+      failures.push(`${bike.id}: 重量缺少合法的 weightType（实际为 ${weight.weightType}）`);
+    }
     if (weight.grams <= 0) failures.push(`${bike.id}: 重量不是正数`);
   }
-  if (bike.price && !bike.price.currency) failures.push(`${bike.id}: 价格缺少币种`);
+  if (!priceTypes.includes(bike.price.priceType)) {
+    failures.push(`${bike.id}: 价格缺少合法的 priceType（实际为 ${bike.price.priceType}）`);
+  }
+  // A price only exists if it has a number; a number only exists if it has a type.
+  if (bike.price.rmb !== null && bike.price.priceType === "unknown") {
+    failures.push(`${bike.id}: 有价格数值却标记为 unknown`);
+  }
+  if (bike.price.rmb === null && bike.price.priceType !== "unknown") {
+    failures.push(`${bike.id}: 标记为 ${bike.price.priceType} 却没有价格数值`);
+  }
+}
+
+// 4a. A converted foreign price must never masquerade as a China MSRP.
+for (const bike of catalog) {
+  for (const price of [bike.price, bike.referencePrice].filter(Boolean)) {
+    if (!price) continue;
+    if (!priceTypes.includes(price.priceType)) {
+      failures.push(`${bike.id}: 参考价 priceType 非法（${price.priceType}）`);
+    }
+    if (price.priceType === "china-msrp" && price.sourceCurrency && price.sourceCurrency !== "CNY") {
+      failures.push(`${bike.id}: 非人民币来源被标记为中国官方建议零售价`);
+    }
+    if (price.priceType === "fx-converted-reference" && !price.fxDate) {
+      failures.push(`${bike.id}: 折算参考价缺少汇率日期`);
+    }
+  }
+}
+
+// 4b. A weight label must match the weight it describes. A bare frame is not a bike.
+const FRAME_ONLY_TYPES = ["bare-frame", "unpainted-frame", "frame", "frameset"];
+for (const bike of catalog) {
+  for (const weight of bike.weights) {
+    if (bike.productType === "complete-bike" && FRAME_ONLY_TYPES.includes(weight.weightType)) {
+      failures.push(`${bike.id}: 整车记录把${weight.weightType}当作整车重量`);
+    }
+    if (weight.weightType === "complete-bike" && bike.productType === "frameset") {
+      failures.push(`${bike.id}: 车架组记录带有整车重量`);
+    }
+  }
 }
 
 // 5. Framesets and complete bikes stay separate product types.
@@ -121,10 +174,79 @@ for (const component of products) {
   }
 }
 
+// 12. Component catalogs: ids unique per catalog, no OEM-only part with a retail price.
+const catalogIdGroups: Array<[string, { id: string; availability?: string; price?: { rmb: number | null; priceType: string } }[]]> = [
+  ["套件", groupsetCatalog.map((entry) => ({ id: entry.id, availability: entry.spec.availability, price: entry.spec.price }))],
+  ["轮组", wheelsetCatalog.map((entry) => ({ id: entry.id, availability: entry.availability, price: entry.price }))],
+  ["零件", componentCatalog.map((entry) => ({ id: entry.id, availability: entry.availability, price: entry.price }))],
+];
+for (const [label, entries] of catalogIdGroups) {
+  const ids = entries.map((entry) => entry.id);
+  const dupes = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
+  if (dupes.length) failures.push(`${label}目录存在重复 id：${dupes.slice(0, 5).join(", ")}`);
+  for (const entry of entries) {
+    if (entry.availability && !availabilityTypes.includes(entry.availability as (typeof availabilityTypes)[number])) {
+      failures.push(`${label} ${entry.id}: availability 非法`);
+    }
+    if (entry.availability === "oem" && entry.price && entry.price.rmb !== null) {
+      failures.push(`${label} ${entry.id}: OEM 专供件不应带有零售价`);
+    }
+    if (entry.price && entry.price.rmb === null && entry.price.priceType !== "unknown") {
+      failures.push(`${label} ${entry.id}: 无价格数值却标记为 ${entry.price.priceType}`);
+    }
+  }
+}
+
+// 13. 11-34, 11-36 and a 50/34 crank are three different SKUs. Merging them would
+//     silently change the spec of every bike that uses one.
+if (drivetrainSkus.length < 3) failures.push("105 传动 SKU 数量不足，疑似被合并");
+
+// 13a. The part picker merges four sources, so an id owned by two of them renders the
+//      same product twice. A "sample" id that a real source also owns is worse still:
+//      it is a defect that can leave a fabricated price visible. Both must be zero.
+const merged = mergePartSources([
+  ["derived", derivedComponents],
+  ["factory", []],
+  ["catalog", catalogComponents],
+  ["sample", products],
+]);
+if (merged.report.internalDuplicates.length) {
+  failures.push(
+    `同一来源内部存在重复零件 id：${merged.report.internalDuplicates
+      .slice(0, 5)
+      .map((entry) => `${entry.id}（${entry.source} ×${entry.count}）`)
+      .join(", ")}`,
+  );
+}
+if (merged.report.collisions.length) {
+  failures.push(
+    `不同来源之间存在零件 id 冲突：${merged.report.collisions
+      .slice(0, 5)
+      .map((entry) => `${entry.id}（${entry.winner} 取代 ${entry.losers.join("/")}）`)
+      .join(", ")}`,
+  );
+}
+if (merged.report.droppedSamples.length) {
+  failures.push(
+    `示例零件与真实零件 id 重复（已丢弃示例条目，但仍应改名）：${merged.report.droppedSamples.slice(0, 5).join(", ")}`,
+  );
+}
+
+// 14. Braking is modelled as shifter + caliper + rotor, not one ambiguous part.
+for (const group of exactBrakeGroups) {
+  if (!group.shifterBrakeLever || !group.caliper) {
+    failures.push(`制动组 ${group.id}: 缺少手变或卡钳`);
+  }
+}
+
+// 15. The ingestion target list must stay declared so coverage can be reported
+//     honestly rather than claimed.
+if (wheelsetIngestionTargets.length < 10) failures.push("轮组导入目标品牌列表过短");
+
 const report = buildCatalogReport();
 
 const structureOnly = catalog.filter(
-  (bike) => !bike.price && bike.weights.length === 0 && !Object.keys(bike.factoryBuild ?? {}).length,
+  (bike) => bike.price.rmb === null && bike.weights.length === 0 && !Object.keys(bike.factoryBuild ?? {}).length,
 );
 if (structureOnly.length !== report.structureOnly) {
   failures.push("仅结构记录统计与目录不一致");
@@ -152,6 +274,12 @@ console.log("=== 零件来源 ===");
 console.log(`原厂件（来自官方规格表） ${parts.total}`);
 console.log(`  覆盖整车            ${parts.bikesCovered}`);
 console.log(`示例零件（标注 demo）    ${products.length}`);
+console.log(`套件目录              ${groupsetCatalog.length}`);
+console.log(`轮组目录              ${wheelsetCatalog.length}`);
+console.log(`零件目录              ${componentCatalog.length}`);
+console.log(`传动 SKU              ${drivetrainSkus.length}`);
+console.log(`制动组                ${exactBrakeGroups.length}`);
+console.log(`轮组导入目标品牌      ${wheelsetIngestionTargets.length}`);
 console.log("");
 console.log("=== 按厂商 ===");
 for (const row of report.byManufacturer) {

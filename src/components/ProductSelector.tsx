@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { Component, ComponentCategory } from "@/types";
-import { priceDisplay, weightDisplay, provenanceBadge } from "@/lib/partsDisplay";
+import { priceDisplay, priceCaption, weightDisplay, provenanceBadge } from "@/lib/partsDisplay";
 
 type ProductSelectorProps = { category: ComponentCategory; products: Component[]; selectedId?: string; selectedSize?: string; factoryId?: string; onSelect: (id: string) => void; onSizeChange: (size: string) => void; onRestore?: () => void };
 
@@ -25,17 +25,19 @@ export function ProductSelector({ category, products, selectedId, selectedSize, 
       <div className="catalog-tools"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`搜索${title}、品牌或型号`} aria-label={`搜索${title}`} /><span>{visibleProducts.length} 个结果</span></div>
       <div className="brand-filters">{brands.map((option) => <button type="button" key={option} className={option === brand ? "active" : ""} onClick={() => setBrand(option)}>{option}</button>)}</div>
       <p className="parts-legend">
-        零件列表同时包含<strong>原厂件</strong>（读取自厂商官方规格表，官方未公布单价与重量）与
-        <strong>示例零件</strong>（名称真实、价格重量为示例值）。每一项都会标明来源。
+        零件列表同时包含三类来源：<strong>原厂件</strong>（读取自厂商官方规格表，官方未公布单价与重量）、
+        <strong>已编目零件</strong>（有明确价格与重量来源，价格旁标注“中国官方建议零售价 / 经销商参考价”等）、
+        <strong>示例零件</strong>（名称真实、价格重量为示例值）。价格未知时显示“价格未知”，不会显示 ¥0。
       </p>
       <div className="product-list">
         {visibleProducts.map((product) => {
           const isSelected = product.id === selectedId;
           const price = priceDisplay(product);
+          const caption = priceCaption(product);
           const weight = weightDisplay(product);
           const badge = provenanceBadge(product);
           const usedOn = product.usedOnBikeIds?.length ?? 0;
-          return <button className={`product-row ${isSelected ? "is-selected" : ""}`} key={product.id} onClick={() => onSelect(product.id)} aria-pressed={isSelected}>
+          return <button className={`product-row ${isSelected ? "is-selected" : ""}`} key={product.id} data-part-id={product.id} onClick={() => onSelect(product.id)} aria-pressed={isSelected}>
             <span className={`product-swatch ${product.image}`} aria-label={`${product.brand} ${product.model} 缩略图`} />
             <span className="product-main">
               <span className="product-brand-row">
@@ -45,9 +47,12 @@ export function ProductSelector({ category, products, selectedId, selectedSize, 
               <span>{product.model}</span>
               {usedOn ? <small className="product-used">装配于 {usedOn} 款整车</small> : null}
             </span>
-            <span className="product-spec">{product.specifications[category === "frame" ? "Material" : category === "wheelset" ? "Rim" : "Speeds"]}</span>
+            <span className="product-spec">{product.specifications[category === "frame" ? "Material" : category === "wheelset" ? "框高" : category === "groupset" ? "世代" : "Speeds"]}</span>
             <span className={`product-weight weight-${weight.kind}`}>{weight.text}</span>
-            <span className={`product-price price-${price.kind}`}>{price.text}</span>
+            <span className="product-price-cell">
+              <b className={`product-price price-${price.kind}`}>{price.text}</b>
+              {caption ? <small className="product-price-caption">{caption}</small> : null}
+            </span>
             <span className="select-dot">{isSelected ? "✓" : ""}</span>
           </button>;
         })}

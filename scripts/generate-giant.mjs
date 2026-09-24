@@ -39,6 +39,64 @@ const EXCLUDED_NAME_PATTERNS = [/^FastRoad\s+\d/i, /^Fastroad\s+\d/i];
 const TIER_PATTERNS = ["Advanced SL", "Advanced Pro", "Advanced", "AR Advanced", "AR ADV", "SLR", "LTD", "Lite", "AR"];
 
 /** family → catalogue category + recommendation tags + riding style. Keys are canonical. */
+/**
+ * APPROVED SEED DATA — supplied by the project owner, imported exactly as stated.
+ *
+ * Not researched, not inferred, not filled in. `null` is used where the owner
+ * explicitly said a figure must not be estimated.
+ *
+ * Matched by GIANT's own product id, which is stable.
+ */
+const WEIGHT_SEEDS = {
+  // id: [grams, size, market, sourceQuality, confidence]
+  1393: [8180, "M", "IT", "manufacturer", null], // TCR Advanced 1-KOM
+  27: [7000, "M", "IT", "manufacturer", null], // TCR Advanced Pro 0-Di2
+  3338: [6290, "M", "IT", "manufacturer", null], // TCR Advanced SL 0-DA
+  3790: [8230, null, null, "verified-retailer", "medium"], // Propel Advanced 1
+  1567: [8500, "M", "IT", "manufacturer-global", null], // Defy Advanced 3
+  1543: [8670, null, null, "verified-third-party", "medium"], // Defy Advanced 1
+  54: [10000, null, null, "authorized-retailer", "medium"], // Contend 1
+  56: [9980, null, null, "verified-third-party", "medium"], // Contend AR 3
+};
+
+/**
+ * Models the owner explicitly said must stay unknown until an exact model-year
+ * source exists. Listed so the decision is recorded in code, not just a commit.
+ */
+const NO_WEIGHT_SEEDS = new Set([
+  3470, // TCR Advanced 3
+  1395, // TCR Advanced 0-AXS
+  3416, // Propel Advanced 3
+  3796, // Propel Advanced SL 0-DA
+]);
+
+const SEED_YEAR = 2025;
+
+/** Build the `weights` / `weightNote` source lines for one product. */
+function weightSourceFor(id) {
+  // The cache stores ids as strings; the seed table is keyed numerically. Coerce so
+  // a type mismatch cannot silently make every seed miss.
+  const key = String(id);
+  const seed = WEIGHT_SEEDS[key] ?? WEIGHT_SEEDS[Number(key)];
+  if (seed) {
+    const [grams, size, market, sourceQuality, confidence] = seed;
+    const fields = [
+      `grams: ${grams}`,
+      `weightType: "complete-bike"`,
+      `size: ${size ? JSON.stringify(size) : "null"}`,
+      `modelYear: ${SEED_YEAR}`,
+      `market: ${market ? JSON.stringify(market) : "null"}`,
+      `sourceQuality: ${JSON.stringify(sourceQuality)}`,
+      confidence ? `confidence: ${JSON.stringify(confidence)}` : null,
+    ].filter(Boolean);
+    return { weights: `[\n      { ${fields.join(", ")} },\n    ]`, weightNote: null };
+  }
+  if (NO_WEIGHT_SEEDS.has(key) || NO_WEIGHT_SEEDS.has(Number(key))) {
+    return { weights: "[]", weightNote: '"官方未公布整车重量；已确认不应估算，保持 null。"' };
+  }
+  return { weights: "[]", weightNote: null };
+}
+
 const FAMILY_META = {
   TCR: {
     category: "all-round-road",
@@ -341,6 +399,7 @@ for (const entry of raw) {
     ridingStyle: meta.ridingStyle,
     recommendationTags: meta.recommendationTags,
     price: entry.price,
+    weightSource: weightSourceFor(entry.id),
     factoryBuild: orderedBuild,
     groupset: inferGroupset(specs),
     frameMaterial: frameMaterialFromSpec(specs["车架"]),
@@ -454,8 +513,11 @@ function renderRecord(record) {
   lines.push(`    productStatus: "current",`);
   lines.push(`    ridingStyle: ${tsValue(record.ridingStyle, 4)},`);
   lines.push(`    recommendationTags: ${tsValue(record.recommendationTags, 4)},`);
-  lines.push(`    price: { amount: ${record.price}, currency: "CNY", region: "CN" },`);
-  lines.push(`    weights: [],`);
+  lines.push(`    price: { rmb: ${record.price}, priceType: "china-msrp", sourceCurrency: "CNY", market: "CN" },`);
+  lines.push(`    weights: ${record.weightSource.weights},`);
+  if (record.weightSource.weightNote) {
+    lines.push(`    weightNote: ${record.weightSource.weightNote},`);
+  }
   lines.push(`    frameMaterial: ${tsValue(record.frameMaterial)},`);
   lines.push(`    groupset: ${tsValue(record.groupset)},`);
   if (record.wheelset) lines.push(`    wheelset: ${tsValue(record.wheelset)},`);

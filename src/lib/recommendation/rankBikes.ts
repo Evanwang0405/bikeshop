@@ -1,5 +1,6 @@
 import type { Bicycle } from "@/types/catalog";
 import { catalog } from "@/data/catalog";
+import { convertToRmb } from "@/types/sourcing";
 import type { BikeQuery } from "./parseBikeQuery";
 
 export type RankedCatalogBike = Bicycle & {
@@ -72,17 +73,26 @@ export function rankBikes(_legacyBikes: unknown[] | undefined, query: BikeQuery)
     if (bike.dataQuality === "official") value += 2;
     if (tags.has("value")) value += 4;
 
-    // --- budget fit: only runs against a verified price in the matching currency
+    // --- budget fit: only runs against the RMB figure shown on the site.
+    // A converted foreign price is still comparable once converted, so it counts;
+    // an unknown price contributes nothing rather than defaulting to zero.
     let budgetFit = 0;
-    if (query.budget && bike.price && bike.price.currency === query.budgetCurrency) {
-      const difference = bike.price.amount - query.budget;
+    const budgetRmb: number | undefined =
+      query.budget === undefined
+        ? undefined
+        : query.budgetCurrency === "USD"
+          ? (convertToRmb(query.budget, "USD") ?? undefined)
+          : query.budget;
+    const bikeRmb = bike.price.rmb;
+    if (budgetRmb !== undefined && bikeRmb !== null) {
+      const difference = bikeRmb - budgetRmb;
       budgetFit =
         difference <= 0
-          ? Math.max(0, 45 - (Math.abs(difference) / query.budget) * 30)
-          : Math.max(-35, 35 - (difference / query.budget) * 80);
-    } else if (query.budget && bike.price && bike.price.currency !== query.budgetCurrency) {
-      // Never convert currency just to compare. Neutral score, and say so.
-      budgetFit = 5;
+          ? Math.max(0, 45 - (Math.abs(difference) / budgetRmb) * 30)
+          : Math.max(-35, 35 - (difference / budgetRmb) * 80);
+    } else if (query.budget && bikeRmb === null) {
+      // Unknown price: neutral, and never treated as free.
+      budgetFit = 0;
     }
 
     const score = styleMatch + positioning + components + value + budgetFit;
@@ -128,12 +138,20 @@ function reasonFor(
 
 function tradeoffFor(bike: Bicycle, query: BikeQuery): string {
   const unknown: string[] = [];
-  if (!bike.price) unknown.push("官方价格");
+  if (bike.price.rmb === null) unknown.push("官方价格");
   if (!bike.weights.length) unknown.push("整车重量");
   const dataNote = unknown.length ? ` 该车系的${unknown.join("与")}尚未取得可核实数据，因此未参与价格或重量比较。` : "";
 
-  if (query.budget && bike.price && bike.price.currency === query.budgetCurrency && bike.price.amount > query.budget) {
-    return `价格高于你的预算约 ${(bike.price.amount - query.budget).toLocaleString()}。${dataNote}`;
+  const bikeRmb = bike.price.rmb;
+  const budgetRmb: number | undefined =
+    query.budget === undefined
+      ? undefined
+      : query.budgetCurrency === "USD"
+        ? (convertToRmb(query.budget, "USD") ?? undefined)
+        : query.budget;
+
+  if (budgetRmb !== undefined && bikeRmb !== null && bikeRmb > budgetRmb) {
+    return `价格高于你的预算约 ¥${(bikeRmb - budgetRmb).toLocaleString("zh-CN")}。${dataNote}`;
   }
   if (query.intent === "aero") return `气动车通常在低速爬坡和舒适性上会做取舍。${dataNote}`;
   if (query.intent === "climbing") return `相对纯气动车，平路高速的空气动力学优势较少。${dataNote}`;

@@ -336,7 +336,7 @@ const makeBudgetWheel = ([brand, model]: readonly [string, string], index: numbe
 
 const groupsetNames = [
   ["Shimano", "Dura-Ace Di2 R9270", "shimano-road", 12, "HG"], ["Shimano", "GRX Di2 RX825", "shimano-road", 12, "HG"], ["Shimano", "Tiagra 4700", "shimano-road", 10, "HG"],
-  ["SRAM", "Force AXS", "sram-road", 12, "XDR"], ["SRAM", "Apex AXS", "sram-road", 12, "XDR"], ["SRAM", "Red AXS", "sram-road", 12, "XDR"], ["SRAM", "Rival XPLR AXS", "sram-road", 12, "XDR"],
+  ["SRAM", "Force D1 AXS", "sram-road", 12, "XDR"], ["SRAM", "Apex D1 AXS", "sram-road", 12, "XDR"], ["SRAM", "Red D1 AXS", "sram-road", 12, "XDR"], ["SRAM", "Rival XPLR D1 AXS", "sram-road", 12, "XDR"],
 ] as const;
 
 const extraGroupsets: Component[] = groupsetNames.map(([brand, model, family, speed, freehub], index) => ({

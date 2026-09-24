@@ -144,7 +144,7 @@ export function toWorkshopBuild(bike: Bicycle): WorkshopLoadResult {
         manufacturer: bike.source.manufacturer,
         productUrl: bike.source.productUrl,
         region: bike.source.region,
-        sourceCurrency: bike.price?.currency,
+        sourceCurrency: bike.price.sourceCurrency ?? undefined,
         retrievedAt: bike.source.retrievedAt,
       },
     };

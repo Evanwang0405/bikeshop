@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BikeVisualizer } from "@/components/BikeVisualizer";
 import { BikeRecommendations } from "@/components/BikeRecommendations";
 import { BrandDirectory } from "@/components/BrandDirectory";
@@ -11,6 +11,9 @@ import { ProductSelector } from "@/components/ProductSelector";
 import { products } from "@/data/products";
 import { catalog } from "@/data/catalog";
 import { toWorkshopBuild, displayName, derivedComponents } from "@/lib/catalog";
+import { catalogComponents } from "@/lib/catalog/componentAdapters";
+import { mergePartSources } from "@/lib/catalog/componentAdapters";
+import { bicyclePriceDisplay } from "@/lib/partsDisplay";
 import { checkCompatibility } from "@/lib/compatibility";
 import { calculatePrice } from "@/lib/pricing";
 import { componentCategories, type BikeBuild, type Component, type ComponentCategory } from "@/types";
@@ -32,13 +35,29 @@ export default function Home() {
   const [loadNotice, setLoadNotice] = useState<string>();
 
   /**
-   * The part picker draws from two sets with clearly different standing:
-   *   · realParts      — read off manufacturer spec tables, no published price/weight
-   *   · products       — illustrative sample parts, converted to CNY and labelled demo
-   * Keeping them in one list (rather than switching on config) is what removes the
-   * "two disconnected worlds" feeling; each row declares which it is.
+   * The part picker draws from four sets with clearly different standing:
+   *   · derivedComponents — real OEM parts read off manufacturer spec tables,
+   *                         deliberately with no published price/weight
+   *   · catalogComponents — parts and groupsets with their own catalog identity and
+   *                         an explicit price/weight provenance
+   *   · factoryComponents — synthesized from the bicycle the user just loaded
+   *   · products          — illustrative sample parts, labelled demo
+   *
+   * They are merged with an explicit precedence rather than concatenated. Sample
+   * data must never shadow a sourced figure: a fabricated price that wins on
+   * collision looks exactly like a verified one, so the merge ranks the sources and
+   * reports every collision instead of rendering both.
    */
-  const allComponents = useMemo<Component[]>(() => [...derivedComponents, ...products, ...factoryComponents], [factoryComponents]);
+  const { components: allComponents, report: partSourceReport } = useMemo(
+    () =>
+      mergePartSources([
+        ["derived", derivedComponents],
+        ["factory", factoryComponents],
+        ["catalog", catalogComponents],
+        ["sample", products],
+      ]),
+    [factoryComponents],
+  );
 
   const selected = useMemo(
     () =>
@@ -62,15 +81,41 @@ export default function Home() {
   const handlebar = selected.find((item) => item?.category === "handlebar");
   const saddle = selected.find((item) => item?.category === "saddle");
   /**
-   * Base bike price comes from the catalog record in its own source currency.
-   * When the manufacturer does not publish a price it is null and we do NOT
-   * substitute a converted or guessed figure — the summary shows the base price
-   * as unknown instead.
+   * Base bike price comes from the catalog price record. When the manufacturer does
+   * not publish a price it is null and we do NOT substitute a converted or guessed
+   * figure — the summary shows the base price as unknown instead. A converted
+   * foreign reference is carried separately so the summary can caption it.
    */
-  const baseBikePrice = build.mode === "complete-bike" ? (selectedBike?.price?.amount ?? 0) : 0;
-  const basePriceKnown = build.mode !== "complete-bike" || Boolean(selectedBike?.price);
+  const baseBikePrice = build.mode === "complete-bike" ? (selectedBike?.price.rmb ?? 0) : 0;
+  const basePriceKnown = build.mode !== "complete-bike" || selectedBike?.price.rmb !== null;
+  const basePriceCaption =
+    build.mode === "complete-bike" && selectedBike ? bicyclePriceDisplay(selectedBike.price).caption : "";
+  const basePriceReference =
+    build.mode === "complete-bike" && selectedBike?.price.rmb === null && selectedBike.referencePrice
+      ? bicyclePriceDisplay(selectedBike.referencePrice)
+      : null;
   const summary = calculatePrice(selected, baseBikePrice, build.factorySelections);
   const results = checkCompatibility(frame, wheelset, groupset, selected);
+
+  /**
+   * Collisions are never silent. Rendering both records would show the same part
+   * twice; rendering only the winner would hide that a source disagrees. Logging the
+   * full set makes the discrepancy actionable.
+   */
+  useEffect(() => {
+    if (partSourceReport.collisions.length) {
+      console.warn(
+        "零件来源 id 冲突（已按优先级取用）：",
+        partSourceReport.collisions.map((c) => `${c.id}: ${c.winner} 取代 ${c.losers.join(", ")}`),
+      );
+    }
+    if (partSourceReport.droppedSamples.length) {
+      console.warn("示例零件与真实零件 id 重复，已丢弃示例条目：", partSourceReport.droppedSamples);
+    }
+    if (partSourceReport.internalDuplicates.length) {
+      console.error("同一来源内部存在重复 id（优先级无法解决）：", partSourceReport.internalDuplicates);
+    }
+  }, [partSourceReport]);
 
   const choose = (category: ComponentCategory, id: string) =>
     setBuild((current) => ({ ...current, selections: { ...current.selections, [category]: id } }));
@@ -176,6 +221,21 @@ export default function Home() {
               <span>{wheelset?.model ?? "等待选择轮组"}</span>
               <span>{groupset?.model ?? "等待选择套件"}</span>
             </div>
+            {/*
+              Source conflicts are surfaced rather than hidden. A silent collision is
+              how a sample price ends up displacing a sourced one, so the count stays
+              visible in the UI until it reaches zero.
+            */}
+            {partSourceReport.collisions.length || partSourceReport.droppedSamples.length || partSourceReport.internalDuplicates.length ? (
+              <p className="parts-collision-note">
+                零件来源冲突：id 冲突 {partSourceReport.collisions.length} 项、
+                示例零件被真实数据取代 {partSourceReport.droppedSamples.length} 项
+                {partSourceReport.internalDuplicates.length
+                  ? `、同源重复 id ${partSourceReport.internalDuplicates.length} 项`
+                  : ""}
+                。已按「原厂件 &gt; 原厂配置 &gt; 已编目零件 &gt; 示例零件」取用，明细见控制台。
+              </p>
+            ) : null}
           </div>
           <BuildSummary
             components={selected}
@@ -184,8 +244,10 @@ export default function Home() {
             subtotal={summary.partsSubtotal}
             weight={summary.totalWeight}
             baseBikePrice={baseBikePrice}
-            baseBikeCurrency={selectedBike?.price?.currency ?? "CNY"}
+            baseBikeCurrency={selectedBike?.price.sourceCurrency ?? "CNY"}
             basePriceKnown={basePriceKnown}
+            basePriceCaption={basePriceCaption}
+            basePriceReference={basePriceReference?.text ?? null}
             modificationSpend={summary.modificationSpend}
             onSave={save}
           />

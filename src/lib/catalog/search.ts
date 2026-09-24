@@ -11,9 +11,8 @@ export type CatalogFilters = {
   productType?: ProductType;
   /** Only products whose identity within the family is fully known. */
   currentOnly?: boolean;
-  /** Upper bound on verified price, in the product's own currency. */
-  maxPrice?: number;
-  currency?: "CNY" | "USD" | "EUR";
+  /** Upper bound on the RMB figure shown on the site. Unknown prices pass through. */
+  maxPriceRmb?: number;
 };
 
 export type ScoredBicycle = {
@@ -97,9 +96,13 @@ export function searchCatalog(filters: CatalogFilters = {}): ScoredBicycle[] {
     if (filters.category && bike.category !== filters.category) continue;
     if (filters.productType && bike.productType !== filters.productType) continue;
     if (filters.currentOnly && bike.productStatus !== "current") continue;
-    if (filters.currency) {
-      if (!bike.price || bike.price.currency !== filters.currency) continue;
-      if (filters.maxPrice !== undefined && bike.price.amount > filters.maxPrice) continue;
+    if (filters.maxPriceRmb !== undefined) {
+      // A product with no reliable price must not be filtered by a numeric bound:
+      // it is unknown, not free.
+      const rmb = bike.price.rmb;
+      const referenceRmb = bike.referencePrice?.rmb ?? null;
+      const comparable = rmb ?? referenceRmb;
+      if (comparable !== null && comparable > filters.maxPriceRmb) continue;
     }
 
     if (!raw) {
@@ -127,13 +130,14 @@ export function searchCatalog(filters: CatalogFilters = {}): ScoredBicycle[] {
     const leftLoadable = hasLoadableFactoryBuild(left.bike) ? 0 : 1;
     const rightLoadable = hasLoadableFactoryBuild(right.bike) ? 0 : 1;
     if (leftLoadable !== rightLoadable) return leftLoadable - rightLoadable;
-    // Then cheapest, but only among prices quoted in the same currency.
-    if (left.bike.price && right.bike.price && left.bike.price.currency === right.bike.price.currency) {
-      return left.bike.price.amount - right.bike.price.amount;
-    }
-    if (left.bike.price && !right.bike.price) return -1;
-    if (!left.bike.price && right.bike.price) return 1;
-    return 0;
+    // Then cheapest among known prices. Products with no reliable price sort AFTER
+    // priced ones: null means unknown, never zero.
+    const leftRmb = left.bike.price.rmb ?? left.bike.referencePrice?.rmb ?? null;
+    const rightRmb = right.bike.price.rmb ?? right.bike.referencePrice?.rmb ?? null;
+    if (leftRmb === null && rightRmb === null) return 0;
+    if (leftRmb === null) return 1;
+    if (rightRmb === null) return -1;
+    return leftRmb - rightRmb;
   });
 }
 

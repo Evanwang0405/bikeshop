@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { brands, families, catalog } from "@/data/catalog";
 import { searchCatalog, browseByBrand, isStructureOnly, type ScoredBicycle } from "@/lib/catalog";
 import { normalizeSearchTerm } from "@/lib/catalog/normalize";
+import { bicyclePriceDisplay, bicycleWeightDisplay } from "@/lib/partsDisplay";
 import type { Bicycle } from "@/types/catalog";
 
 const SEARCH_EXAMPLES = [
@@ -48,6 +49,7 @@ const STATUS_LABELS: Record<Bicycle["productStatus"], string> = {
   "previous-generation": "上一代",
   archived: "已归档",
   unknown: "状态未知",
+  "historical-or-market-reference": "历史/市场参考",
 };
 
 const QUALITY_LABELS: Record<Bicycle["dataQuality"], string> = {
@@ -294,14 +296,6 @@ function variantLabel(bike: Bicycle): string {
   return parts.join(" · ");
 }
 
-const WEIGHT_KIND_LABELS: Record<string, string> = {
-  "complete-bike": "整车",
-  "bare-frame": "裸车架",
-  "unpainted-frame": "未涂装车架",
-  "frame-with-fork": "车架+前叉",
-  frameset: "车架组",
-};
-
 function CatalogRow({
   bike,
   matchedOn,
@@ -311,20 +305,16 @@ function CatalogRow({
   matchedOn?: ScoredBicycle["matchedOn"];
   onSelect: (bike: Bicycle) => void;
 }) {
-  const currencyPrefix = bike.price?.currency === "USD" ? "US$" : bike.price?.currency === "EUR" ? "€" : "¥";
-  const price = bike.price ? `${currencyPrefix}${bike.price.amount.toLocaleString()}` : "价格未核实";
+  const price = bicyclePriceDisplay(bike.price);
   const weight = bike.weights[0];
   // The weight definition is always shown: a bare-frame figure is never presented
   // as if it were a complete-bike weight.
-  const weightLabel = weight
-    ? `${(weight.grams / 1000).toFixed(2)} kg（${WEIGHT_KIND_LABELS[weight.kind] ?? weight.kind}${weight.size ? ` ${weight.size} 码` : ""}）`
-    : "重量未核实";
-  // A figure that exists but is not confirmed on the product page is shown, but
-  // never in the same style as a verified one.
+  const weightLabel = weight ? bicycleWeightDisplay(weight) : "重量暂无官方数据";
+  // A figure that exists but is not the confirmed primary one is shown, but never
+  // in the same style as a verified one.
   const referenceWeight = !weight ? bike.referenceWeights?.[0] : undefined;
-  const referenceWeightLabel = referenceWeight
-    ? `${(referenceWeight.grams / 1000).toFixed(2)} kg 参考${referenceWeight.size ? `（${referenceWeight.size} 码）` : ""}`
-    : null;
+  const referenceWeightLabel = referenceWeight ? `${bicycleWeightDisplay(referenceWeight)} 参考` : null;
+  const referencePrice = bike.price.rmb === null ? bicyclePriceDisplay(bike.referencePrice ?? bike.price) : null;
 
   return (
     <div className="catalog-row">
@@ -339,7 +329,8 @@ function CatalogRow({
       <div className="catalog-row-meta">
         <span className={`catalog-badge quality-${bike.dataQuality}`}>{QUALITY_LABELS[bike.dataQuality]}</span>
         <span className={`catalog-badge status-${bike.productStatus}`}>{STATUS_LABELS[bike.productStatus]}</span>
-        <span className="catalog-row-price">{price}</span>
+        <span className={`catalog-row-price price-${price.kind}`}>{price.text}</span>
+        {price.caption ? <span className="catalog-row-price-caption">{price.caption}</span> : null}
         <span className="catalog-row-weight">{weightLabel}</span>
         {referenceWeightLabel ? <span className="catalog-row-weight weight-reference">{referenceWeightLabel}</span> : null}
         <a href={bike.source.productUrl} target="_blank" rel="noreferrer">
@@ -361,13 +352,13 @@ function CatalogRow({
           用这辆车开始选配
         </button>
       </div>
-      {bike.referencePrice ? (
+      {referencePrice ? (
         <p className="catalog-row-note">
-          参考价 {bike.referencePrice.currency} {bike.referencePrice.amount.toLocaleString()}（未核实，未写入 price）：
-          {bike.referencePrice.note}
+          参考价 {referencePrice.text}（{referencePrice.caption}，未写入 price）：
+          {bike.referencePrice?.note ?? bike.price.note}
         </p>
       ) : null}
-      {bike.priceNote && !bike.price ? <p className="catalog-row-note">{bike.priceNote}</p> : null}
+      {bike.priceNote && bike.price.rmb === null ? <p className="catalog-row-note">{bike.priceNote}</p> : null}
       {/*
         Structure-only records get an explicit warning. This is derived from the data
         (no price, no weight, no build) rather than a hardcoded brand list, so it

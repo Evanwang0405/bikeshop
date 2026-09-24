@@ -56,14 +56,56 @@ const IDENTITY = {
 };
 
 /**
+ * APPROVED SEED DATA — supplied by the project owner, imported exactly as stated.
+ * Matched by MERIDA's own product id, which is stable.
+ *
+ * `weightGrams: null` entries are models the owner said must stay unknown.
+ */
+const WEIGHT_SEEDS = {
+  22: [7200, "M", null, "manufacturer", null], // SCULTURA TEAM
+  23: [8200, "M", null, "manufacturer", null], // SCULTURA 6000
+  115: [7400, "M", null, "manufacturer", null], // REACTO ONE
+  109: [8000, "M", null, "manufacturer", null], // REACTO 8000
+  110: [8500, "M", "EU", "manufacturer-global", null], // REACTO 6000
+  63: [9200, "M", null, "manufacturer", null], // SCULTURA ENDURANCE 6000
+  98: [9500, "M", "EU", "manufacturer-global", null], // SILEX 7000
+};
+
+/** SCULTURA 600 stays null until a verified exact-version source exists. */
+const NO_WEIGHT_SEEDS = new Set([26]);
+
+const SEED_YEAR = 2025;
+
+function weightSourceFor(id) {
+  const seed = WEIGHT_SEEDS[id];
+  if (seed) {
+    const [grams, size, market, sourceQuality, confidence] = seed;
+    const fields = [
+      `grams: ${grams}`,
+      `weightType: "complete-bike"`,
+      `size: ${size ? JSON.stringify(size) : "null"}`,
+      `modelYear: ${SEED_YEAR}`,
+      `market: ${market ? JSON.stringify(market) : "null"}`,
+      `sourceQuality: ${JSON.stringify(sourceQuality)}`,
+      confidence ? `confidence: ${JSON.stringify(confidence)}` : null,
+    ].filter(Boolean);
+    return { weights: `[\n      { ${fields.join(", ")} },\n    ]`, weightNote: null };
+  }
+  if (NO_WEIGHT_SEEDS.has(id)) {
+    return { weights: "[]", weightNote: '"官方未公布整车重量；已确认不应估算，保持 null。"' };
+  }
+  return { weights: "[]", weightNote: null };
+}
+
+/**
  * Weights stated in the brief or in MERIDA's own launch material that are NOT on the
  * product page. Kept in `referenceWeights` so they are visible without inflating the
  * verified-weight count.
  */
 const REFERENCE_WEIGHTS = {
-  109: [{ grams: 8000, kind: "complete-bike", note: "需求提供的 REACTO 8000 约 8 kg；官方产品页未列整车重量，故仅作参考。" }],
-  23: [{ grams: 8200, kind: "complete-bike", size: "M", note: "需求提供的 SCULTURA 6000 约 8.2 kg（M 码）；官方产品页未列整车重量，故仅作参考。" }],
-  115: [{ grams: 7400, kind: "complete-bike", size: "M", note: "第五代 REACTO 发布资料标示 REACTO ONE 7.4 kg（M 码）。" }],
+  109: [{ grams: 8000, weightType: "complete-bike", note: "需求提供的 REACTO 8000 约 8 kg；官方产品页未列整车重量，故仅作参考。" }],
+  23: [{ grams: 8200, weightType: "complete-bike", size: "M", note: "需求提供的 SCULTURA 6000 约 8.2 kg（M 码）；官方产品页未列整车重量，故仅作参考。" }],
+  115: [{ grams: 7400, weightType: "complete-bike", size: "M", note: "第五代 REACTO 发布资料标示 REACTO ONE 7.4 kg（M 码）。" }],
 };
 
 const FAMILY_META = {
@@ -206,6 +248,7 @@ for (const entry of raw) {
     identity,
     meta,
     price: entry.price,
+    weightSource: weightSourceFor(entry.id),
     sizes: entry.sizes,
     colors: entry.colors,
     factoryBuild: ordered,
@@ -271,12 +314,14 @@ function renderRecord(record) {
   rows.push(`    ridingStyle: ${tsValue(meta.ridingStyle, 4)},`);
   rows.push(`    recommendationTags: ${tsValue(meta.recommendationTags, 4)},`);
   if (record.price === null) {
-    rows.push(`    price: null,`);
-    rows.push(`    priceNote: "官方产品页未公布建议零售价。",`);
+    rows.push(`    price: { rmb: null, priceType: "unknown", note: "官方产品页未公布建议零售价。" },`);
   } else {
-    rows.push(`    price: { amount: ${record.price}, currency: "CNY", region: "CN" },`);
+    rows.push(`    price: { rmb: ${record.price}, priceType: "china-msrp", sourceCurrency: "CNY", market: "CN" },`);
   }
-  rows.push(`    weights: [],`);
+  rows.push(`    weights: ${record.weightSource.weights},`);
+  if (record.weightSource.weightNote) {
+    rows.push(`    weightNote: ${record.weightSource.weightNote},`);
+  }
   if (REFERENCE_WEIGHTS[record.id]) {
     rows.push(`    referenceWeights: ${tsValue(REFERENCE_WEIGHTS[record.id], 4)},`);
   }
@@ -321,6 +366,12 @@ function renderRecord(record) {
   ];
   if (REFERENCE_WEIGHTS[record.id]) {
     notes.push("存在发布资料/需求提供的重量，已存入 referenceWeights，未计入已核实重量。");
+  }
+  if (WEIGHT_SEEDS[record.id]) {
+    notes.push(`已导入经确认的整车重量 ${WEIGHT_SEEDS[record.id][0]} g。`);
+  }
+  if (NO_WEIGHT_SEEDS.has(record.id)) {
+    notes.push("已确认不应估算重量，保持 null。");
   }
   if (identity.family === "SILEX") notes.push("SILEX 归类为砾石 / 探险平台，不归入普通公路竞赛车系。");
   rows.push(`    notes: ${tsValue(notes, 4)},`);

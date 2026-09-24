@@ -96,7 +96,7 @@ export function hasCompleteFactoryBuild(bike: Bicycle): boolean {
  */
 export function isStructureOnly(bike: Bicycle): boolean {
   const buildSlots = Object.keys(bike.factoryBuild ?? {}).length;
-  return bike.price === null && bike.weights.length === 0 && buildSlots === 0;
+  return bike.price.rmb === null && bike.weights.length === 0 && buildSlots === 0;
 }
 
 export function hasVerifiedWeight(bike: Bicycle): boolean {
@@ -104,7 +104,20 @@ export function hasVerifiedWeight(bike: Bicycle): boolean {
 }
 
 export function hasVerifiedPrice(bike: Bicycle): boolean {
-  return bike.price !== null;
+  return bike.price.rmb !== null;
+}
+
+/**
+ * Whether a price describes the China market rather than a converted foreign one.
+ * A converted figure must be labelled as such wherever it is shown.
+ */
+export function isChinaPrice(bike: Bicycle): boolean {
+  return bike.price.priceType === "china-msrp";
+}
+
+/** Bikes whose only figure is a converted, retailer or legacy reference. */
+export function hasReferencePriceOnly(bike: Bicycle): boolean {
+  return bike.price.rmb === null && Boolean(bike.referencePrice?.rmb);
 }
 
 export function buildCatalogReport(): CatalogReport {
@@ -132,7 +145,7 @@ export function buildCatalogReport(): CatalogReport {
       completeBikes: records.filter((bike) => bike.productType === "complete-bike").length,
       framesets: records.filter((bike) => bike.productType === "frameset").length,
       verifiedPrices: records.filter(hasVerifiedPrice).length,
-      referencePricesOnly: records.filter((bike) => !hasVerifiedPrice(bike) && bike.referencePrice).length,
+      referencePricesOnly: records.filter(hasReferencePriceOnly).length,
       verifiedWeights: records.filter(hasVerifiedWeight).length,
       completeFactoryBuilds: records.filter(hasCompleteFactoryBuild).length,
       loadableFactoryBuilds: records.filter(hasLoadableFactoryBuild).length,
@@ -150,7 +163,7 @@ export function buildCatalogReport(): CatalogReport {
     completeBikes: catalog.filter((bike) => bike.productType === "complete-bike").length,
     framesets: catalog.filter((bike) => bike.productType === "frameset").length,
     verifiedPrices: catalog.filter(hasVerifiedPrice).length,
-    referencePricesOnly: catalog.filter((bike) => !hasVerifiedPrice(bike) && bike.referencePrice).length,
+    referencePricesOnly: catalog.filter(hasReferencePriceOnly).length,
     verifiedWeights: catalog.filter(hasVerifiedWeight).length,
     completeFactoryBuilds: catalog.filter(hasCompleteFactoryBuild).length,
     loadableFactoryBuilds: catalog.filter(hasLoadableFactoryBuild).length,

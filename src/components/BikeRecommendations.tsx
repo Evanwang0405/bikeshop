@@ -4,6 +4,7 @@ import { useState } from "react";
 import { parseBikeQuery, type BikeQuery } from "@/lib/recommendation/parseBikeQuery";
 import { rankBikes, type RankedCatalogBike } from "@/lib/recommendation/rankBikes";
 import { displayName } from "@/lib/catalog";
+import { bicyclePriceDisplay, bicycleWeightDisplay } from "@/lib/partsDisplay";
 import type { Bicycle } from "@/types/catalog";
 
 const EXAMPLES = [
@@ -23,15 +24,17 @@ const INTENT_LABELS: Record<BikeQuery["intent"], string> = {
 };
 
 function priceLabel(bike: RankedCatalogBike): string {
-  if (!bike.price) return "价格未核实";
-  const prefix = bike.price.currency === "CNY" ? "¥" : bike.price.currency === "USD" ? "US$" : "€";
-  return `${prefix}${bike.price.amount.toLocaleString()}`;
+  return bicyclePriceDisplay(bike.price).text;
+}
+
+/** Caption says whether the figure is a China MSRP or a converted foreign one. */
+function priceCaption(bike: RankedCatalogBike): string {
+  return bicyclePriceDisplay(bike.price).caption;
 }
 
 function weightLabel(bike: RankedCatalogBike): string {
   const weight = bike.weights[0];
-  if (!weight) return "重量未核实";
-  return `${(weight.grams / 1000).toFixed(2)} kg`;
+  return weight ? bicycleWeightDisplay(weight) : "重量暂无官方数据";
 }
 
 export function BikeRecommendations({ onSelect }: { onSelect: (bike: Bicycle) => void }) {
@@ -132,6 +135,7 @@ export function BikeRecommendations({ onSelect }: { onSelect: (bike: Bicycle) =>
                     </div>
                     <div className="bike-meta">
                       <span>{priceLabel(bike)}</span>
+                      {priceCaption(bike) ? <span className="bike-price-caption">{priceCaption(bike)}</span> : null}
                       <span>{weightLabel(bike)}</span>
                       <span>{bike.groupset ?? "套件未公布"}</span>
                     </div>
