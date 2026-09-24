@@ -13,26 +13,61 @@ npm run dev
 
 Open http://localhost:3000.
 
-## MVP architecture
+## Architecture
 
-- `src/types`: domain models for products and builds
-- `src/data`: demo product catalog kept separate from UI
+- `src/types/catalog.ts`: normalized China-market bicycle schema
+- `src/data/catalog/`: **real** manufacturer catalog, one module per brand
+- `src/lib/catalog/`: search, alias normalization, coverage stats, Workshop bridge
+- `src/types/bike.ts`: Workshop (component) models
+- `src/data/products.ts`: component catalogue (illustrative sample data)
 - `src/lib/compatibility`: small rule-based compatibility engine
 - `src/lib/pricing`: subtotal calculation
-- `src/components`: visualizer, product browser, and build summary
-- `src/app`: Next.js app shell
+- `src/components`: visualizer, catalog explorer, data-quality report, build summary
+- `src/app`: Next.js App Router shell
 
-The first vertical slice covers frame, wheelset, and groupset. More categories can be added to the same catalog and build model without changing the pricing or compatibility boundaries.
+### Two separate data sets — do not confuse them
 
-## Publish a public URL
+| | real catalog | part catalogue |
+|---|---|---|
+| Where | `src/data/catalog/` | `src/data/products.ts` |
+| What | China-market bicycles | Workshop components |
+| Quality | `official` / `verified` / `partial` | `demo` |
 
-The app is ready for Vercel deployment. The simplest workflow is:
+The bicycle catalog is manufacturer-backed: every price traces to the product page it
+was read from, every weight carries the definition it was measured under, and anything
+unconfirmed is `null`. See `src/data/catalog/README.md` before adding records.
 
-1. Create a new GitHub repository and upload this project.
-2. Sign in at https://vercel.com and choose **Add New Project**.
-3. Import the GitHub repository.
-4. Keep the detected Next.js settings and click **Deploy**.
+## Verify
 
-Vercel will provide a public `vercel.app` URL. Every later push to the repository will automatically publish a new version.
+```bash
+npm run verify:catalog   # catalog invariants: aliases resolve, no duplicate identities, weights have kinds
+npm run typecheck
+npm run lint
+```
 
-The catalog currently contains demo data. Product prices, availability, and images should be reviewed before using the site commercially.
+`verify:catalog` fails the build on a broken invariant, so a bad ingestion cannot land silently.
+
+## Public URL
+
+Live at **https://bikeshop1.vercel.app**
+
+The `vercel` git remote (`Evanwang0405/bikeshop1`) is connected to Vercel. Push to it to
+publish a new version:
+
+```bash
+git push origin main
+git push vercel main
+```
+
+`origin` is the main GitHub repo (`Evanwang0405/bikeshop`); `vercel` is the deployed one.
+
+## Data caveats
+
+- Prices keep their **source currency**. Winspace quotes USD and is stored as USD; no
+  conversion is applied anywhere.
+- Where a manufacturer publishes no price, `price` is `null` — never estimated.
+- "Structure-only" records exist for brands whose official sites are currently
+  unreachable (Pardus, Camp). They carry taxonomy and search aliases only, are counted
+  separately in the data-quality report, and are **not** included in product coverage.
+- Product images are currently **hotlinked** from manufacturer CDNs. Re-host them before
+  any commercial use.

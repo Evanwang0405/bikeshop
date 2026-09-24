@@ -21,7 +21,7 @@ export type BuildMode = "complete-bike" | "custom-build";
 
 export type Money = {
   amount: number;
-  currency: "USD" | "CNY";
+  currency: "USD" | "CNY" | "EUR";
   region?: string;
 };
 
@@ -38,6 +38,8 @@ export type ProductSource = {
   region?: string;
   sourceCurrency?: string;
   retrievedAt: string;
+  /** Data-source tier (1 = official China page, 2 = official global page, ...). */
+  sourceTier?: number;
 };
 
 export type ComponentReference = {
@@ -74,7 +76,7 @@ export type Component = {
   description: string;
   specifications: Record<string, string>;
   compatibility: CompatibilityAttributes;
-  dataQuality?: "official" | "verified" | "demo";
+  dataQuality?: "official" | "verified" | "partial" | "demo";
   source?: ProductSource;
   productImage?: ProductImage;
 };
@@ -109,7 +111,7 @@ export type CompleteBike = {
   msrp?: Money;
   productImage?: ProductImage;
   source?: ProductSource;
-  dataQuality?: "official" | "verified" | "demo";
+  dataQuality?: "official" | "verified" | "partial" | "demo";
   factoryBuild?: FactoryBuild;
 };
 

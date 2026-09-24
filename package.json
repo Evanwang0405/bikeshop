@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "verify:catalog": "node --experimental-strip-types --import ./scripts/path-alias-register.mjs scripts/verify-catalog.ts"
   },
   "dependencies": {
     "next": "latest",

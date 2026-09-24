@@ -1,79 +1,19 @@
-import type { BrandDirectoryItem, Component, ComponentCategory, CompleteBike } from "@/types/bike";
+import type { Component, ComponentCategory } from "@/types/bike";
 
-export const brandDirectory: BrandDirectoryItem[] = [
-  { name: "Specialized", officialUrl: "https://www.specialized.com/us/en/shop/bikes/road-bikes", models: ["Tarmac", "Roubaix", "Aethos", "Allez", "Shiv"] },
-  { name: "Trek", officialUrl: "https://www.trekbikes.com/us/en_US/bikes/road-bikes/", models: ["Madone", "Domane", "Émonda", "Speed Concept"] },
-  { name: "Giant", officialUrl: "https://www.giant-bicycles.com/us/", models: ["TCR", "Defy", "Contend"] },
-  { name: "Canyon", officialUrl: "https://www.canyon.com/en-us/road-bikes/", models: ["Aeroad", "Ultimate", "Endurace", "Speedmax"] },
-  { name: "Cannondale", officialUrl: "https://www.cannondale.com/en-us/bikes/road", models: ["SuperSix EVO", "Synapse", "CAAD", "Topstone"] },
-  { name: "Cervélo", officialUrl: "https://www.cervelo.com/en-US/bikes", models: ["S5", "R5", "Soloist", "Caledonia-5", "P5"] },
-  { name: "Pinarello", officialUrl: "https://pinarello.com/usa/en/bike-list", models: ["Dogma F", "Prince", "X"] },
-  { name: "Colnago", officialUrl: "https://www.colnago.com/", models: ["Y1Rs", "V4Rs", "C68", "G4X"] },
-  { name: "Bianchi", officialUrl: "https://www.bianchi.com/bikes/road/", models: ["Oltre", "Specialissima", "Infinito", "Sprint"] },
-  { name: "BMC", officialUrl: "https://bmc-switzerland.com/collections/road-bikes", models: ["Teammachine", "Roadmachine", "Speedmachine"] },
-  { name: "Scott", officialUrl: "https://www.scott-sports.com/us/en/products/bike-bikes-road", models: ["Addict", "Foil", "Speedster"] },
-  { name: "Orbea", officialUrl: "https://www.orbea.com/us-en/bicycles/road/", models: ["Orca", "Avant", "Onix"] },
-  { name: "Merida", officialUrl: "https://www.merida-bikes.com/", models: ["Scultura", "Reacto", "Silex"] },
-  { name: "Factor", officialUrl: "https://factorbikes.com/bikes/", models: ["O2", "Ostro VAM", "Ostro Gravel"] },
-  { name: "Santa Cruz", officialUrl: "https://www.santacruzbicycles.com/en-US/bikes", models: ["Stigmata", "Blur", "Highball"] },
-  { name: "Yeti", officialUrl: "https://yeticycles.com/bikes", models: ["ASR", "SB120", "ARC"] },
-  { name: "XDS", officialUrl: "https://www.xdsbike.com/", models: ["ADORE", "RS", "Carbon Road"] },
-  { name: "Pardus", officialUrl: "https://parduscycling.com/", models: ["Robin", "Spark", "Super Sport"] },
-  { name: "Winspace", officialUrl: "https://www.winspace.cc/collections/best-sellers", models: ["SLC5.0", "T1600", "C5 Aero", "M6"] },
-  { name: "SEKA", officialUrl: "https://www.sekabikes.com/", models: ["Exceed", "Exaero", "Lite"] },
-];
-
-const officialBrandUrls: Record<string, string> = Object.fromEntries(brandDirectory.map((brand) => [brand.name, brand.officialUrl]));
-
-const completeBikeSeed: CompleteBike[] = [
-  { id: "triban-rc120", brand: "Triban", model: "RC 120 Disc", price: 749, weight: 10800, category: "budget", groupset: "Microshift 2x8", description: "适合作为第一辆公路车，舒适、可靠，也容易维护。" },
-  { id: "giant-contend-ar-4", brand: "Giant", model: "Contend AR 4", price: 999, weight: 10700, category: "budget", groupset: "Shimano Sora 2x9", description: "舒适的全路况操控，并为更宽的外胎留出空间。" },
-  { id: "trek-domane-al-2", brand: "Trek", model: "Domane AL 2 Gen 4", price: 1199, weight: 10500, category: "budget", groupset: "Shimano Claris 2x8", description: "稳定耐用的耐力型公路车，适合探索更长的路线。" },
-  { id: "cannondale-synapse-3", brand: "Cannondale", model: "Synapse Carbon 3", price: 2499, weight: 9300, category: "all-round", groupset: "Shimano 105 12-speed", description: "从日常骑行到周末长途都能胜任的碳纤维耐力车。" },
-  { id: "trek-emonda-sl-6", brand: "Trek", model: "Émonda SL 6", price: 3299, weight: 8100, category: "climbing", groupset: "Shimano 105 Di2", description: "轻快灵活，专为一条又一条的爬坡路而生。" },
-  { id: "specialized-tarmac-sl8", brand: "Specialized", model: "Tarmac SL8 Expert", price: 6500, weight: 7600, category: "climbing", groupset: "Shimano Ultegra Di2", description: "适合环赛级别骑行的全能竞赛车，爬坡响应出色。" },
-  { id: "cervelo-r5", brand: "Cervélo", model: "R5 Ultegra Di2", price: 7200, weight: 7350, category: "climbing", groupset: "Shimano Ultegra Di2", description: "纯粹的爬坡车：低重量、灵敏操控，适合高山长途。" },
-  { id: "canyon-ultimate-cf-slx", brand: "Canyon", model: "Ultimate CF SLX 8 Di2", price: 5599, weight: 7600, category: "all-round", groupset: "Shimano Ultegra Di2", description: "兼顾各种地形的均衡竞赛平台，速度与操控都很出色。", family: "Ultimate", trim: "CF SLX 8 Di2", year: 2026, brandId: "canyon", dataQuality: "official", source: { manufacturer: "Canyon", productUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/cf-slx/ultimate-cf-slx-8-di2/4372.html", region: "US", sourceCurrency: "USD", retrievedAt: "2026-09-12" }, productImage: { url: "https://dma.canyon.com/image/upload/w_991,c_fit/f_auto/q_auto/2025_Launch_Product_x_Web_World_Road_01_3600x1200_ALL_trlnd3", sourceUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/", sourceType: "official", alt: "Canyon Ultimate 公路车官方参考图" }, factoryBuild: { frame: { productId: "canyon-ultimate-cf-slx-frame" }, wheelset: { productId: "canyon-ultimate-arc-1400" }, tires: { productId: "continental-gp5000-s-tr" }, groupset: { productId: "shimano-ultegra-r8100" } } },
-  { id: "colnago-v4rs", brand: "Colnago", model: "V4Rs", price: 12500, weight: 7000, category: "all-round", groupset: "Shimano Dura-Ace Di2", description: "受环赛竞赛启发的高性能碳纤维赛车。" },
-  { id: "cervelo-s5", brand: "Cervélo", model: "S5", price: 9000, weight: 7900, category: "aero", groupset: "Shimano Ultegra Di2", description: "气动竞赛几何，适合在平路和侧风路段保持高速。" },
-  { id: "colnago-y1rs", brand: "Colnago", model: "Y1Rs", price: 13500, weight: 7200, category: "aero", groupset: "Shimano Dura-Ace Di2", description: "面向环赛集团前方的气动竞赛车，专注高速效率。" },
-  { id: "specialized-venge-demo", brand: "Specialized", model: "Venge Team Archive", price: 4800, weight: 7900, category: "sprint", groupset: "SRAM Force AXS", description: "快速、刚性出色的气动平台，为平路冲刺提供最大功率。" },
-  { id: "canyon-aeroad-cfr", brand: "Canyon", model: "Aeroad CFR", price: 9499, weight: 7500, category: "sprint", groupset: "SRAM Red AXS", description: "职业级气动效率，兼顾突围和最后一公里的操控。" },
-  { id: "scott-foil-rc", brand: "Scott", model: "Foil RC Pro", price: 8999, weight: 7800, category: "sprint", groupset: "SRAM Red AXS", description: "一体化气动设计，适合突围、集团冲刺和高速下坡。" },
-];
-
-const brandCompleteBikeSeed: CompleteBike[] = [
-  { id: "specialized-aethos", brand: "Specialized", model: "Aethos", price: 3499, weight: 7200, category: "climbing", groupset: "Shimano 105", description: "轻量、灵活、强调骑行质感的爬坡型公路车。" },
-  { id: "trek-madone-slr", brand: "Trek", model: "Madone SLR", price: 7999, weight: 7600, category: "aero", groupset: "Shimano Dura-Ace Di2", description: "兼顾气动与爬坡效率的竞赛公路车。" },
-  { id: "giant-tcr-advanced", brand: "Giant", model: "TCR Advanced Pro", price: 4299, weight: 7700, category: "climbing", groupset: "Shimano Ultegra Di2", description: "经典全能竞赛平台，适合爬坡和长距离比赛。" },
-  { id: "canyon-endurace-cf", brand: "Canyon", model: "Endurace CF 7", price: 2999, weight: 8400, category: "all-round", groupset: "Shimano 105", description: "舒适耐力几何，适合长途和日常高效骑行。" },
-  { id: "cannondale-supersix-evo", brand: "Cannondale", model: "SuperSix EVO 4", price: 3699, weight: 8100, category: "all-round", groupset: "Shimano 105", description: "轻快的竞赛公路车，兼顾速度与操控。" },
-  { id: "cervelo-soloist", brand: "Cervélo", model: "Soloist", price: 4999, weight: 8200, category: "all-round", groupset: "SRAM Rival AXS", description: "介于气动车和爬坡车之间的均衡竞赛车型。" },
-  { id: "pinarello-dogma-f", brand: "Pinarello", model: "Dogma F", price: 14500, weight: 6900, category: "all-round", groupset: "Shimano Dura-Ace Di2", description: "源自环赛竞赛的高端全能公路车。" },
-  { id: "colnago-c68", brand: "Colnago", model: "C68 Road", price: 13500, weight: 7350, category: "all-round", groupset: "Shimano Dura-Ace Di2", description: "手工制造取向的意式高端公路车。" },
-  { id: "bianchi-specialissima", brand: "Bianchi", model: "Specialissima", price: 6999, weight: 7300, category: "climbing", groupset: "Shimano Ultegra Di2", description: "为爬坡和山地竞赛打造的轻量公路车。" },
-  { id: "bmc-teammachine", brand: "BMC", model: "Teammachine SLR 01", price: 8999, weight: 7200, category: "all-round", groupset: "Shimano Dura-Ace Di2", description: "高刚性、高效率的职业竞赛平台。" },
-  { id: "scott-addict-rc", brand: "Scott", model: "Addict RC", price: 6999, weight: 7300, category: "climbing", groupset: "SRAM Force AXS", description: "轻量爬坡性能与现代气动设计的结合。" },
-  { id: "orbea-orca", brand: "Orbea", model: "Orca M30", price: 3299, weight: 8200, category: "climbing", groupset: "Shimano 105", description: "轻量碳纤维爬坡车，适合山路和周末长途。" },
-  { id: "merida-reacto", brand: "Merida", model: "Reacto 6000", price: 4799, weight: 7900, category: "aero", groupset: "Shimano Ultegra Di2", description: "高效率气动车，适合平路高速和集团骑行。" },
-  { id: "factor-ostro-vam", brand: "Factor", model: "Ostro VAM", price: 8999, weight: 7000, category: "aero", groupset: "Shimano Dura-Ace Di2", description: "轻量与气动兼顾的高端竞赛自行车。" },
-  { id: "santa-cruz-stigmata", brand: "Santa Cruz", model: "Stigmata", price: 3999, weight: 8700, category: "all-round", groupset: "SRAM Rival XPLR", description: "可应对公路、碎石和长途冒险的全地形车型。" },
-  { id: "yeti-asr", brand: "Yeti", model: "ASR", price: 6599, weight: 10500, category: "climbing", groupset: "SRAM XO Transmission", description: "轻量越野竞赛车，适合山地爬坡和技术路段。" },
-  { id: "xds-adore", brand: "XDS", model: "ADORE Carbon Road", price: 2199, weight: 8500, category: "all-round", groupset: "Shimano 105", description: "碳纤维全能公路车，强调配置与价格平衡。" },
-  { id: "pardus-robin", brand: "Pardus", model: "Robin", price: 1899, weight: 8900, category: "all-round", groupset: "Shimano 105", description: "面向日常训练和长距离骑行的实用公路车。" },
-  { id: "winspace-slc50", brand: "Winspace", model: "SLC5.0", price: 5999, weight: 7300, category: "aero", groupset: "Shimano Ultegra Di2", description: "碳纤维气动公路车，适合高速巡航和竞赛。" },
-  { id: "seka-exceed", brand: "SEKA", model: "Exceed", price: 5499, weight: 7200, category: "all-round", groupset: "Shimano Ultegra Di2", description: "轻量全能竞赛车，适合爬坡、平路和长距离。" },
-];
-
-export const completeBikes: CompleteBike[] = [...completeBikeSeed, ...brandCompleteBikeSeed].map((bike) => ({
-  ...bike,
-  subCategory: bike.category === "aero" || bike.category === "sprint" ? "aero" : bike.category === "climbing" ? "race" : bike.category === "budget" ? "endurance" : "race",
-  frameMaterial: bike.price < 2000 ? "aluminum" : "carbon",
-  wheelset: bike.category === "aero" || bike.category === "sprint" ? "碳纤维深框轮组" : "碳纤维/铝合金公路轮组",
-  ridingStyle: bike.category === "climbing" ? ["climbing", "lightweight", "race"] : bike.category === "aero" || bike.category === "sprint" ? ["aero", "sprint", "race"] : bike.category === "budget" ? ["beginner", "value", "endurance"] : ["all-round", "race", "endurance"],
-  tags: bike.price < 2500 ? ["value"] : bike.price > 8000 ? ["premium"] : [],
-  officialUrl: officialBrandUrls[bike.brand],
-}));
+/**
+ * LEGACY PART CATALOG (demo data)
+ * -----------------------------------------------------------------------------
+ * This module holds the *component* catalogue used by the Workshop's part picker.
+ * Its prices, weights and compatibility values are illustrative sample data, not
+ * manufacturer-verified figures, so every generated entry is stamped
+ * `dataQuality: "demo"`.
+ *
+ * Real China-market *bicycles* live in `src/data/catalog/` and are the only
+ * source used by search, family browsing, the data-quality report and the
+ * recommendation engine. The fabricated complete-bike seed and the flat brand
+ * directory that used to live here have been removed: the brief explicitly rejects
+ * generating more fake products.
+ */
 
 const factoryReferenceProducts: Component[] = [
   { id: "canyon-ultimate-cf-slx-frame", brand: "Canyon", model: "Ultimate CF SLX Frame", category: "frame", price: 0, weight: 950, image: "frame-blue", description: "Canyon Ultimate CF SLX 原厂车架参考项。", specifications: { Material: "Carbon", "Wheel size": "700c" }, compatibility: { wheelSize: "700c", axleStandard: "12x142", tireClearance: 32, brakeType: "disc", seatpostDiameter: 27.2 }, dataQuality: "official", source: { manufacturer: "Canyon", productUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/", region: "US", sourceCurrency: "USD", retrievedAt: "2026-09-12" } },

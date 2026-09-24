@@ -4,3 +4,10 @@ out/
 .env*
 .DS_Store
 *.log
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Scraped raw source caches (regenerate with scripts/ingest-*.mjs)
+scripts/.giant-cn-raw.json
+scripts/.giant-generated.json
