@@ -207,6 +207,12 @@ export type Bicycle = {
   referencePrice?: ReferencePrice | null;
 
   weights: WeightRecord[];
+  /**
+   * Weights that exist in the brief or an earlier source but could not be confirmed
+   * on the product page. Kept separate from `weights` so the verified-weight count
+   * cannot be inflated by them — the same reason `referencePrice` exists.
+   */
+  referenceWeights?: WeightRecord[] | null;
   frameMaterial?: string | null;
   groupset?: string | null;
   crankset?: string | null;

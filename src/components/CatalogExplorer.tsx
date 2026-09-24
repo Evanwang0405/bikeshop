@@ -319,6 +319,12 @@ function CatalogRow({
   const weightLabel = weight
     ? `${(weight.grams / 1000).toFixed(2)} kg（${WEIGHT_KIND_LABELS[weight.kind] ?? weight.kind}${weight.size ? ` ${weight.size} 码` : ""}）`
     : "重量未核实";
+  // A figure that exists but is not confirmed on the product page is shown, but
+  // never in the same style as a verified one.
+  const referenceWeight = !weight ? bike.referenceWeights?.[0] : undefined;
+  const referenceWeightLabel = referenceWeight
+    ? `${(referenceWeight.grams / 1000).toFixed(2)} kg 参考${referenceWeight.size ? `（${referenceWeight.size} 码）` : ""}`
+    : null;
 
   return (
     <div className="catalog-row">
@@ -335,6 +341,7 @@ function CatalogRow({
         <span className={`catalog-badge status-${bike.productStatus}`}>{STATUS_LABELS[bike.productStatus]}</span>
         <span className="catalog-row-price">{price}</span>
         <span className="catalog-row-weight">{weightLabel}</span>
+        {referenceWeightLabel ? <span className="catalog-row-weight weight-reference">{referenceWeightLabel}</span> : null}
         <a href={bike.source.productUrl} target="_blank" rel="noreferrer">
           官方来源 ↗
         </a>
