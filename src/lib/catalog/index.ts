@@ -32,4 +32,12 @@ export {
   type ManufacturerCoverage,
 } from "./stats";
 
-export { toWorkshopBuild, missingFactorySlots, factoryBuildSummary, type WorkshopLoadResult } from "./workshopLoad";
+export { toWorkshopBuild, missingFactorySlots, factoryBuildSummary, SLOT_TO_CATEGORY, splitBrandModel, type WorkshopLoadResult } from "./workshopLoad";
+
+export {
+  derivedComponents,
+  derivedComponentStats,
+  getDerivedComponent,
+  componentsForBike,
+  type DerivedComponent,
+} from "./derivedComponents";

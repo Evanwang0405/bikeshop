@@ -15,6 +15,19 @@ import type { Component, ComponentCategory } from "@/types/bike";
  * generating more fake products.
  */
 
+/**
+ * Convert a figure originally written in USD into CNY, rounded to the nearest ¥10.
+ *
+ * The sample prices in this file were authored in USD while the real bicycle
+ * catalog is priced in CNY. Showing ¥ and $ on one screen invites people to add up
+ * numbers that are not comparable, so the sample set is converted here.
+ *
+ * This does NOT make the numbers real. Every sample entry is stamped
+ * `priceBasis: "estimated"` below, and the UI must label them as such.
+ */
+const USD_TO_CNY = 7.2;
+const usdToCny = (usd: number): number => Math.round((usd * USD_TO_CNY) / 10) * 10;
+
 const factoryReferenceProducts: Component[] = [
   { id: "canyon-ultimate-cf-slx-frame", brand: "Canyon", model: "Ultimate CF SLX Frame", category: "frame", price: 0, weight: 950, image: "frame-blue", description: "Canyon Ultimate CF SLX 原厂车架参考项。", specifications: { Material: "Carbon", "Wheel size": "700c" }, compatibility: { wheelSize: "700c", axleStandard: "12x142", tireClearance: 32, brakeType: "disc", seatpostDiameter: 27.2 }, dataQuality: "official", source: { manufacturer: "Canyon", productUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/", region: "US", sourceCurrency: "USD", retrievedAt: "2026-09-12" } },
   { id: "canyon-ultimate-arc-1400", brand: "DT Swiss", model: "ARC 1400 DICUT 原厂轮组", category: "wheelset", price: 0, weight: 1520, image: "wheels-carbon", description: "Canyon Ultimate CF SLX 8 Di2 原厂轮组参考项。", specifications: { Rim: "Carbon", Freehub: "HG", Axles: "12x142 / 12x100" }, compatibility: { wheelSize: "700c", axleStandard: "12x142", freehub: "HG" }, dataQuality: "official", source: { manufacturer: "Canyon", productUrl: "https://www.canyon.com/en-us/road-bikes/race-bikes/ultimate/cf-slx/ultimate-cf-slx-8-di2/4372.html", region: "US", sourceCurrency: "USD", retrievedAt: "2026-09-12" } },
@@ -26,7 +39,7 @@ const baseProducts: Component[] = [
     brand: "Canyon",
     model: "Endurace CF 7 Frame",
     category: "frame",
-    price: 1899,
+    price: 13670,
     weight: 1080,
     image: "frame-red",
     description: "A composed carbon endurance frame with room for fast, comfortable days.",
@@ -38,7 +51,7 @@ const baseProducts: Component[] = [
     brand: "Trek",
     model: "Émonda ALR Frameset",
     category: "frame",
-    price: 1299,
+    price: 9350,
     weight: 1450,
     image: "frame-blue",
     description: "Lightweight alloy race geometry with a sharp, responsive feel.",
@@ -50,7 +63,7 @@ const baseProducts: Component[] = [
     brand: "Giant",
     model: "Defy Advanced Frameset",
     category: "frame",
-    price: 2199,
+    price: 15830,
     weight: 1190,
     image: "frame-sand",
     description: "All-road carbon comfort with generous clearance for changing roads.",
@@ -62,7 +75,7 @@ const baseProducts: Component[] = [
     brand: "DT Swiss",
     model: "ER 1600 Spline 32",
     category: "wheelset",
-    price: 899,
+    price: 6470,
     weight: 1710,
     image: "wheels-deep",
     description: "Durable alloy wheels tuned for long rides and rougher roads.",
@@ -74,7 +87,7 @@ const baseProducts: Component[] = [
     brand: "Zipp",
     model: "303 Firecrest Tubeless",
     category: "wheelset",
-    price: 1900,
+    price: 13680,
     weight: 1352,
     image: "wheels-carbon",
     description: "Deep-section carbon wheels that make every climb feel more intentional.",
@@ -86,7 +99,7 @@ const baseProducts: Component[] = [
     brand: "Fulcrum",
     model: "Racing 4 Disc",
     category: "wheelset",
-    price: 599,
+    price: 4310,
     weight: 1725,
     image: "wheels-shallow",
     description: "A confident, easy-to-live-with alloy wheelset for everyday riding.",
@@ -98,7 +111,7 @@ const baseProducts: Component[] = [
     brand: "Shimano",
     model: "105 Di2 R7150 12-speed",
     category: "groupset",
-    price: 1399,
+    price: 10070,
     weight: 2850,
     image: "groupset-silver",
     description: "Electronic shifting with the calm, precise character of modern 105.",
@@ -110,7 +123,7 @@ const baseProducts: Component[] = [
     brand: "SRAM",
     model: "Rival eTap AXS 12-speed",
     category: "groupset",
-    price: 1499,
+    price: 10790,
     weight: 3100,
     image: "groupset-black",
     description: "Wireless shifting and wide-range simplicity for a modern road build.",
@@ -122,7 +135,7 @@ const baseProducts: Component[] = [
     brand: "Shimano",
     model: "Ultegra Di2 R8170",
     category: "groupset",
-    price: 2299,
+    price: 16550,
     weight: 2715,
     image: "groupset-ice",
     description: "Race-bred electronic shifting with refined ergonomics and low weight.",
@@ -134,7 +147,7 @@ const baseProducts: Component[] = [
     brand: "Canyon",
     model: "Endurace Carbon Fork",
     category: "fork",
-    price: 399,
+    price: 2870,
     weight: 420,
     image: "fork-carbon",
     description: "A precise carbon fork matched to modern 12mm road axles.",
@@ -146,7 +159,7 @@ const baseProducts: Component[] = [
     brand: "Continental",
     model: "Grand Prix 5000 S TR",
     category: "tires",
-    price: 168,
+    price: 1210,
     weight: 560,
     image: "tires-black",
     description: "Fast tubeless road tires with a supple casing and dependable grip.",
@@ -158,7 +171,7 @@ const baseProducts: Component[] = [
     brand: "Shimano",
     model: "105 R7100 Crankset",
     category: "crankset",
-    price: 249,
+    price: 1790,
     weight: 920,
     image: "crankset-silver",
     description: "A balanced 12-speed crankset with an approachable 50/34 pairing.",
@@ -170,7 +183,7 @@ const baseProducts: Component[] = [
     brand: "Shimano",
     model: "105 CS-R7101 Cassette",
     category: "cassette",
-    price: 84,
+    price: 600,
     weight: 340,
     image: "cassette-silver",
     description: "A wide-range 12-speed cassette for confident climbing.",
@@ -182,7 +195,7 @@ const baseProducts: Component[] = [
     brand: "Shimano",
     model: "CN-M7100 Chain",
     category: "chain",
-    price: 42,
+    price: 300,
     weight: 252,
     image: "chain-silver",
     description: "A quiet, durable chain for 12-speed road drivetrains.",
@@ -194,7 +207,7 @@ const baseProducts: Component[] = [
     brand: "Shimano",
     model: "105 Hydraulic Disc Brakes",
     category: "brakes",
-    price: 290,
+    price: 2090,
     weight: 610,
     image: "brakes-black",
     description: "Confident hydraulic control with easy modulation in every weather.",
@@ -206,7 +219,7 @@ const baseProducts: Component[] = [
     brand: "Zipp",
     model: "Service Course SL Handlebar",
     category: "handlebar",
-    price: 110,
+    price: 790,
     weight: 275,
     image: "bar-black",
     description: "A compact alloy bar with a comfortable, controlled shape.",
@@ -218,7 +231,7 @@ const baseProducts: Component[] = [
     brand: "Ritchey",
     model: "WCS C220 Stem",
     category: "stem",
-    price: 109,
+    price: 780,
     weight: 121,
     image: "stem-black",
     description: "A clean, stiff cockpit connection for precise steering.",
@@ -230,7 +243,7 @@ const baseProducts: Component[] = [
     brand: "Specialized",
     model: "Power Expert Saddle",
     category: "saddle",
-    price: 160,
+    price: 1150,
     weight: 233,
     image: "saddle-black",
     description: "A supportive short-nose saddle shaped for long hours in the drops.",
@@ -242,7 +255,7 @@ const baseProducts: Component[] = [
     brand: "Canyon",
     model: "S15 VCLS Seatpost",
     category: "seatpost",
-    price: 199,
+    price: 1430,
     weight: 220,
     image: "seatpost-carbon",
     description: "A compliant carbon seatpost that takes the edge off rough roads.",
@@ -254,7 +267,7 @@ const baseProducts: Component[] = [
     brand: "Shimano",
     model: "Ultegra PD-R8000 Pedals",
     category: "pedals",
-    price: 199,
+    price: 1430,
     weight: 248,
     image: "pedals-silver",
     description: "A broad, efficient platform with a smooth, durable bearing system.",
@@ -289,14 +302,16 @@ const budgetWheelNames = [
 
 const makeFrame = ([brand, model]: readonly [string, string], index: number): Component => ({
   id: `${brand.toLowerCase().replaceAll(" ", "-")}-${model.toLowerCase().replaceAll(" ", "-")}`,
-  brand, model, category: "frame", price: 899 + index * 115, weight: 1120 + (index % 6) * 55,
+  brand, model, category: "frame", price: usdToCny(899 + index * 115), weight: 1120 + (index % 6) * 55,
+  priceBasis: "estimated", weightBasis: "estimated",
   image: ["frame-red", "frame-blue", "frame-sand"][index % 3], description: "A modern road frame ready for a fast, comfortable build.",
   specifications: { Material: index % 3 === 0 ? "Carbon" : "Aluminum", "Wheel size": "700c", Clearance: `${30 + index % 3 * 3}mm`, Axles: "12x142 / 12x100" },
   compatibility: { wheelSize: "700c", axleStandard: "12x142", tireClearance: 30 + index % 3 * 3, brakeType: "disc", bottomBracket: index % 2 ? "T47" : "BB86", seatpostDiameter: 27.2 },
 });
 
 const makeBudgetFrame = ([brand, model]: readonly [string, string], index: number): Component => ({
-  id: `${brand.toLowerCase()}-${model.toLowerCase().replaceAll(" ", "-")}`, brand, model, category: "frame", price: 399 + index * 75, weight: 1540 + index * 70,
+  id: `${brand.toLowerCase()}-${model.toLowerCase().replaceAll(" ", "-")}`, brand, model, category: "frame", price: usdToCny(399 + index * 75), weight: 1540 + index * 70,
+  priceBasis: "estimated", weightBasis: "estimated",
   image: ["frame-blue", "frame-sand", "frame-red"][index % 3],
   description: "An affordable road-ready frame for building more and spending less.", specifications: { Material: index % 2 ? "Aluminum" : "Steel", "Wheel size": "700c", Clearance: "32mm", Axles: "12x142 / 12x100" },
   compatibility: { wheelSize: "700c", axleStandard: "12x142", tireClearance: 32, brakeType: "disc", bottomBracket: "BSA", seatpostDiameter: 27.2 },
@@ -304,14 +319,16 @@ const makeBudgetFrame = ([brand, model]: readonly [string, string], index: numbe
 
 const makeWheel = ([brand, model]: readonly [string, string], index: number): Component => ({
   id: `${brand.toLowerCase().replaceAll(" ", "-")}-${model.toLowerCase().replaceAll(" ", "-")}`,
-  brand, model, category: "wheelset", price: 499 + index * 85, weight: 1340 + (index % 7) * 62,
+  brand, model, category: "wheelset", price: usdToCny(499 + index * 85), weight: 1340 + (index % 7) * 62,
+  priceBasis: "estimated", weightBasis: "estimated",
   image: ["wheels-deep", "wheels-carbon", "wheels-shallow"][index % 3], description: "A road wheelset balancing speed, durability, and everyday confidence.",
   specifications: { Rim: index % 2 ? "Carbon, 45mm" : "Alloy, 32mm", Hub: "Sealed bearing", Axles: "12x142 / 12x100", Freehub: index % 4 === 1 ? "XDR" : "HG" },
   compatibility: { wheelSize: "700c", axleStandard: "12x142", freehub: index % 4 === 1 ? "XDR" : "HG" },
 });
 
 const makeBudgetWheel = ([brand, model]: readonly [string, string], index: number): Component => ({
-  id: `${brand.toLowerCase()}-${model.toLowerCase().replaceAll(" ", "-")}`, brand, model, category: "wheelset", price: 249 + index * 45, weight: 1880 + index * 65,
+  id: `${brand.toLowerCase()}-${model.toLowerCase().replaceAll(" ", "-")}`, brand, model, category: "wheelset", price: usdToCny(249 + index * 45), weight: 1880 + index * 65,
+  priceBasis: "estimated", weightBasis: "estimated",
   image: "wheels-shallow",
   description: "A dependable alloy wheelset for an accessible first build.", specifications: { Rim: "Alloy, 30mm", Hub: "Sealed bearing", Axles: "12x142 / 12x100", Freehub: "HG" },
   compatibility: { wheelSize: "700c", axleStandard: "12x142", freehub: "HG" },
@@ -323,7 +340,8 @@ const groupsetNames = [
 ] as const;
 
 const extraGroupsets: Component[] = groupsetNames.map(([brand, model, family, speed, freehub], index) => ({
-  id: `${brand.toLowerCase()}-${model.toLowerCase().replaceAll(" ", "-")}`, brand, model, category: "groupset", price: 1099 + index * 240, weight: 2580 + index * 80,
+  id: `${brand.toLowerCase()}-${model.toLowerCase().replaceAll(" ", "-")}`, brand, model, category: "groupset", price: usdToCny(1099 + index * 240), weight: 2580 + index * 80,
+  priceBasis: "estimated", weightBasis: "estimated",
   image: brand === "SRAM" ? "groupset-black" : "groupset-silver", description: "A complete drivetrain package with crisp shifting and hydraulic control.",
   specifications: { Speeds: `${speed}`, "Brakes": "Hydraulic disc", Crank: "50/34T", Cassette: "11-34T" },
   compatibility: { drivetrainSpeed: speed, groupsetFamily: family, brakeType: "disc", bottomBracket: brand === "SRAM" ? "DUB" : "BB86", freehub },
@@ -345,7 +363,8 @@ const extraChoices = [
 
 const makeExtraChoice = (category: ComponentCategory, [brand, model]: readonly [string, string], index: number): Component => ({
   id: `${brand.toLowerCase().replaceAll(" ", "-")}-${model.toLowerCase().replaceAll(" ", "-")}`,
-  brand, model, category, price: 79 + index * 43, weight: 180 + index * 72, image: `${category}-option-${index}`,
+  brand, model, category, price: usdToCny(79 + index * 43), weight: 180 + index * 72, image: `${category}-option-${index}`,
+  priceBasis: "estimated", weightBasis: "estimated",
   description: "A considered component option for a balanced road build.", specifications: { Version: `${index + 1}`, Finish: "Black", Fit: "Road" },
   compatibility: category === "tires" ? { wheelSize: "700c", tireWidth: 28 + index * 2 } : category === "brakes" ? { brakeType: "disc" } : category === "seatpost" ? { seatpostDiameter: 27.2 } : category === "handlebar" || category === "stem" ? { clampDiameter: 31.8 } : category === "cassette" ? { drivetrainSpeed: 12, freehub: "HG" } : category === "chain" ? { drivetrainSpeed: 12, groupsetFamily: "shimano-road" } : category === "crankset" ? { drivetrainSpeed: 12, groupsetFamily: "shimano-road", bottomBracket: "BB86" } : {},
 });
@@ -371,7 +390,24 @@ function addSizeWeights(product: Component): Component {
   return { ...product, sizeOptions: profile.options, weightBySize: Object.fromEntries(profile.options.map((size, index) => [size, Math.round(product.weight * profile.multipliers[index % profile.multipliers.length])])) };
 }
 
-export const products: Component[] = [...factoryReferenceProducts, ...baseProducts, ...extraProducts].map(addSizeWeights);
+/**
+ * Every sample entry is stamped as demo data with an explicit provenance basis.
+ * This is what lets the UI label a figure as "示例" instead of implying it is a
+ * manufacturer figure, and it is why `dataQuality: "demo"` is applied here rather
+ * than relying on an absent field being interpreted correctly downstream.
+ */
+function stampSampleProvenance(product: Component): Component {
+  return {
+    ...product,
+    dataQuality: product.dataQuality ?? "demo",
+    priceBasis: product.priceBasis ?? "estimated",
+    weightBasis: product.weightBasis ?? "estimated",
+  };
+}
+
+export const products: Component[] = [...factoryReferenceProducts, ...baseProducts, ...extraProducts]
+  .map(addSizeWeights)
+  .map(stampSampleProvenance);
 
 export function getProduct(id: string | undefined): Component | undefined {
   return products.find((product) => product.id === id);

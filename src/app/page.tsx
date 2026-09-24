@@ -10,7 +10,7 @@ import { DataQualityReport } from "@/components/DataQualityReport";
 import { ProductSelector } from "@/components/ProductSelector";
 import { products } from "@/data/products";
 import { catalog } from "@/data/catalog";
-import { toWorkshopBuild, displayName } from "@/lib/catalog";
+import { toWorkshopBuild, displayName, derivedComponents } from "@/lib/catalog";
 import { checkCompatibility } from "@/lib/compatibility";
 import { calculatePrice } from "@/lib/pricing";
 import { componentCategories, type BikeBuild, type Component, type ComponentCategory } from "@/types";
@@ -31,7 +31,14 @@ export default function Home() {
   const [factoryComponents, setFactoryComponents] = useState<Component[]>([]);
   const [loadNotice, setLoadNotice] = useState<string>();
 
-  const allComponents = useMemo<Component[]>(() => [...products, ...factoryComponents], [factoryComponents]);
+  /**
+   * The part picker draws from two sets with clearly different standing:
+   *   · realParts      — read off manufacturer spec tables, no published price/weight
+   *   · products       — illustrative sample parts, converted to CNY and labelled demo
+   * Keeping them in one list (rather than switching on config) is what removes the
+   * "two disconnected worlds" feeling; each row declares which it is.
+   */
+  const allComponents = useMemo<Component[]>(() => [...derivedComponents, ...products, ...factoryComponents], [factoryComponents]);
 
   const selected = useMemo(
     () =>

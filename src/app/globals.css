@@ -1,5 +1,64 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   Part provenance: every part declares whether it is a real OEM part, a verified
+   part, or a sample. Prices and weights must never render an unknown figure as
+   a number — "¥0" reads as free, not as unpublished.
+   ========================================================================== */
+
+.parts-legend {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font: 10px/1.55 Arial, sans-serif;
+  max-width: 640px;
+}
+.parts-legend strong { color: var(--ink); font-weight: 400; }
+
+.prov-badge {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 1px 5px;
+  font: 9px Arial, sans-serif;
+  font-style: normal;
+  letter-spacing: .4px;
+  border: 1px solid var(--line);
+  vertical-align: middle;
+}
+.product-brand-row { display: flex; align-items: center; gap: 0; }
+.product-brand-row .prov-badge { margin-left: 7px; }
+.prov-real { border-color: #8fae96; color: #3f6b4b; }
+.prov-verified { border-color: #9bb0c0; color: #40606f; }
+.prov-demo { border-color: #d9bfa0; color: #8a6636; }
+.prov-partial { border-color: #cfc8bf; color: #7d7266; }
+
+.product-used {
+  display: block;
+  color: var(--accent);
+  font: 9px Arial, sans-serif;
+  margin-top: 2px;
+}
+
+/* An unknown figure is shown in muted text so it never reads as a value. */
+.product-price.price-unknown,
+.product-price.price-included,
+.summary-item b.price-unknown,
+.summary-item b.price-included { color: var(--muted); font-size: 11px; }
+.product-price.price-estimated,
+.summary-item b.price-estimated { color: #8a6636; }
+.product-weight.weight-unknown { color: var(--muted); font-size: 10px; }
+.product-weight.weight-estimated { color: #8a6636; }
+
+.total-caveat {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  background: #f6efe4;
+  border-left: 2px solid #d9bfa0;
+  color: #7d6236;
+  font: 10px/1.5 Arial, sans-serif;
+}
+
+/* ...existing code... */
+
 .product-swatch { background-size: cover; background-position: center; }
 .factory-image { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: .18; filter: saturate(.7); }.factory-change { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin: -5px 0 18px; color: var(--muted); font: 11px Arial, sans-serif; }.factory-change button { border: 0; border-bottom: 1px solid var(--accent); background: transparent; color: var(--accent); padding: 3px 0; font: 10px Arial, sans-serif; }
 .summary-item small { display: block; color: var(--accent); margin-top: 4px; font: 9px Arial, sans-serif; text-transform: uppercase; letter-spacing: 1px; }

@@ -14,6 +14,8 @@
 import { catalog, families } from "@/data/catalog";
 import { searchCatalog, resolveBrandFromQuery } from "@/lib/catalog/search";
 import { buildCatalogReport } from "@/lib/catalog/stats";
+import { derivedComponents, derivedComponentStats } from "@/lib/catalog/derivedComponents";
+import { products } from "@/data/products";
 
 const REQUIRED_SEARCHES = [
   "ADV",
@@ -95,6 +97,30 @@ if (families.some((family) => /^adv/i.test(family.family))) {
 
 // 9. Structure-only records must be counted consistently so they can never be
 //    mistaken for fully imported products in the coverage numbers.
+// 10. Derived part ids must be unique, or React renders duplicate keys and the
+//     picker shows the same part twice.
+const partIds = derivedComponents.map((component) => component.id);
+const duplicatePartIds = [...new Set(partIds.filter((id, index) => partIds.indexOf(id) !== index))];
+if (duplicatePartIds.length) {
+  failures.push(`原厂零件存在重复 id：${duplicatePartIds.slice(0, 5).join(", ")}`);
+}
+
+// 11. No part may claim a price or weight we do not have. OEM parts carry no
+//     published price/weight, and sample parts must be labelled as such.
+for (const component of derivedComponents) {
+  if (component.price !== 0 || component.weight !== 0) {
+    failures.push(`原厂件 ${component.id} 带有未经核实的价格或重量`);
+  }
+  if (component.priceBasis !== "unknown" || component.weightBasis !== "unknown") {
+    failures.push(`原厂件 ${component.id} 的来源标记应为 unknown`);
+  }
+}
+for (const component of products) {
+  if (!component.priceBasis || !component.weightBasis) {
+    failures.push(`示例零件 ${component.id} 缺少 priceBasis / weightBasis`);
+  }
+}
+
 const report = buildCatalogReport();
 
 const structureOnly = catalog.filter(
@@ -119,6 +145,13 @@ console.log(`官方图片        ${report.officialImages}`);
 console.log(`仅结构记录      ${report.structureOnly}`);
 console.log(`被拒记录        ${report.rejected}`);
 console.log(`总记录          ${report.totalRecords}`);
+
+const parts = derivedComponentStats();
+console.log("");
+console.log("=== 零件来源 ===");
+console.log(`原厂件（来自官方规格表） ${parts.total}`);
+console.log(`  覆盖整车            ${parts.bikesCovered}`);
+console.log(`示例零件（标注 demo）    ${products.length}`);
 console.log("");
 console.log("=== 按厂商 ===");
 for (const row of report.byManufacturer) {

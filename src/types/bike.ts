@@ -70,6 +70,23 @@ export type Component = {
   category: ComponentCategory;
   price: number;
   weight: number;
+  /**
+   * How the price figure was obtained.
+   *   verified  — read from a manufacturer page
+   *   included  — factory part, already paid for inside the complete-bike price
+   *   estimated — illustrative sample value, NOT a real quote
+   *   unknown   — no price available
+   */
+  priceBasis?: "verified" | "included" | "estimated" | "unknown";
+  /**
+   * Where the weight figure comes from.
+   *   official  — published by the manufacturer
+   *   estimated — illustrative sample value, NOT a published figure
+   *   unknown   — no weight available (manufacturers rarely publish part weights)
+   */
+  weightBasis?: "official" | "estimated" | "unknown";
+  /** Bicycles in the catalog whose factory build uses this exact part. */
+  usedOnBikeIds?: string[];
   sizeOptions?: string[];
   weightBySize?: Record<string, number>;
   image: string;

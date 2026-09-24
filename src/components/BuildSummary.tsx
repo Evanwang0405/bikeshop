@@ -2,6 +2,7 @@
 
 import type { CompatibilityResult, Component, ComponentCategory } from "@/types";
 import { componentCategories as allComponentCategories } from "@/types";
+import { priceDisplay, provenanceBadge, totalDisplay } from "@/lib/partsDisplay";
 
 type BuildSummaryProps = {
   components: Component[];
@@ -38,6 +39,10 @@ export function BuildSummary({
   const completed = components.length;
   const currencyPrefix = baseBikeCurrency === "CNY" ? "¥" : baseBikeCurrency === "USD" ? "US$" : "€";
   const showBase = basePriceKnown && baseBikePrice > 0;
+  // A total that treats unknown prices as zero looks like a quote. Report it as
+  // incomplete instead, and say by how much.
+  const partsTotal = totalDisplay(components, showBase ? modificationSpend : subtotal);
+  const grand = totalDisplay(components, showBase ? baseBikePrice + modificationSpend : subtotal);
   return (
     <aside className="summary-panel">
       <div className="summary-top">
@@ -62,13 +67,10 @@ export function BuildSummary({
                 <span>
                   {component.category}
                   {isModified ? <small>已改装</small> : null}
+                  <em className={`prov-badge ${provenanceBadge(component).className}`}>{provenanceBadge(component).text}</em>
                 </span>
                 <strong>{component.brand} {component.model}</strong>
-                <b>
-                  {component.price === 0 && factorySelections[component.category] === component.id
-                    ? "原厂配置"
-                    : `${currencyPrefix}${component.price.toLocaleString()}`}
-                </b>
+                <b className={`price-${priceDisplay(component).kind}`}>{priceDisplay(component).text}</b>
               </div>
             );
           })
@@ -103,19 +105,21 @@ export function BuildSummary({
         ) : null}
         <div>
           <span>{showBase ? "新增改装花费" : "零件小计"}</span>
-          <strong>{currencyPrefix}{(showBase ? modificationSpend : subtotal).toLocaleString()}</strong>
+          <strong>{partsTotal.text}</strong>
         </div>
         <div>
           <span>当前购买成本</span>
-          <strong>
-            {basePriceKnown
-              ? `${currencyPrefix}${(baseBikePrice + (showBase ? modificationSpend : subtotal)).toLocaleString()}`
-              : "价格未知"}
-          </strong>
+          <strong>{basePriceKnown ? grand.text : "价格未知"}</strong>
         </div>
+        {!grand.complete && partsTotal.unknownCount > 0 ? (
+          <p className="total-caveat">
+            合计不完整：{partsTotal.unknownCount} 项零件官方未公布价格，已按 ¥0 计入。
+            真实总价会高于此数。
+          </p>
+        ) : null}
         <div>
           <span>预计重量</span>
-          <strong>{weight > 0 ? `${(weight / 1000).toFixed(2)} kg` : "未取得可核实数据"}</strong>
+          <strong>{weight > 0 ? `${(weight / 1000).toFixed(2)} kg` : "尚未公布"}</strong>
         </div>
       </div>
       <button className="save-button" onClick={onSave}>

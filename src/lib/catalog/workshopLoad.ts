@@ -20,7 +20,7 @@ import { factoryBuildSlots } from "@/types/catalog";
  */
 
 /** Map a catalog factory-build slot onto a Workshop component category. */
-const SLOT_TO_CATEGORY: Partial<Record<keyof FactoryBuildSlots, ComponentCategory>> = {
+export const SLOT_TO_CATEGORY: Partial<Record<keyof FactoryBuildSlots, ComponentCategory>> = {
   frame: "frame",
   fork: "fork",
   groupset: "groupset",
@@ -59,15 +59,20 @@ const CATEGORY_LABELS: Record<ComponentCategory, string> = {
   pedals: "脚踏",
 };
 
-function splitBrandModel(value: string): { brand: string; model: string } {
+export function splitBrandModel(value: string): { brand: string; model: string } {
   const trimmed = value.trim();
   const spaceIndex = trimmed.indexOf(" ");
   if (spaceIndex === -1) return { brand: "", model: trimmed };
   return { brand: trimmed.slice(0, spaceIndex), model: trimmed.slice(spaceIndex + 1) };
 }
 
+/** Synthesized factory-part ids are suffixed with the slot they came from. */
+export function factoryComponentId(bikeId: string, slot: keyof FactoryBuildSlots): string {
+  return `${bikeId}__${slot}`;
+}
+
 function componentId(bike: Bicycle, slot: keyof FactoryBuildSlots): string {
-  return `${bike.id}__${slot}`;
+  return factoryComponentId(bike.id, slot);
 }
 
 export type WorkshopLoadResult = {
@@ -103,9 +108,12 @@ export function toWorkshopBuild(bike: Bicycle): WorkshopLoadResult {
       brand: brand || bike.brand,
       model: model || value,
       category,
-      // Factory parts are already paid for inside the complete-bike price.
+      // Factory parts are already paid for inside the complete-bike price, so the
+      // part itself has no separate price. GIANT also does not publish part weights.
       price: 0,
+      priceBasis: "included",
       weight: 0,
+      weightBasis: "unknown",
       image: `factory-${category}`,
       description: `${bike.brand} ${bike.family} ${bike.tier ?? ""} ${bike.trim ?? ""}`.trim() + ` 原厂${CATEGORY_LABELS[category]}：${value}`,
       specifications: {
